@@ -5,524 +5,1187 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>OpenAPI MCP Console</title>
     <style>
+      :root {
+        --bg: #07111f;
+        --bg-2: #0d1726;
+        --panel: rgba(15, 23, 42, 0.82);
+        --panel-2: rgba(17, 24, 39, 0.92);
+        --border: rgba(148, 163, 184, 0.16);
+        --text: #e5eefc;
+        --muted: #90a3bf;
+        --brand: #60a5fa;
+        --brand-2: #8b5cf6;
+        --success: #22c55e;
+        --warn: #f59e0b;
+        --danger: #ef4444;
+        --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+      }
+
       * {
         box-sizing: border-box;
       }
+      html,
       body {
-        font-family: Arial, sans-serif;
         margin: 0;
-        background: #0b1020;
-        color: #e7ecf5;
+        min-height: 100%;
+        background:
+          radial-gradient(
+            circle at top left,
+            rgba(96, 165, 250, 0.16),
+            transparent 24%
+          ),
+          radial-gradient(
+            circle at top right,
+            rgba(139, 92, 246, 0.12),
+            transparent 26%
+          ),
+          linear-gradient(180deg, #07111f 0%, #091322 40%, #07111f 100%);
+        color: var(--text);
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
       }
-      .wrap {
-        max-width: 1280px;
-        width: 100%;
+
+      .shell {
+        max-width: 1600px;
         margin: 0 auto;
-        padding: 24px 16px;
+        padding: 28px;
       }
-      .grid {
+
+      .hero {
+        padding: 28px;
+        border: 1px solid var(--border);
+        background: linear-gradient(
+          135deg,
+          rgba(30, 41, 59, 0.75),
+          rgba(15, 23, 42, 0.95)
+        );
+        border-radius: 24px;
+        box-shadow: var(--shadow);
+        margin-bottom: 20px;
+      }
+
+      .hero h1 {
+        margin: 0 0 8px;
+        font-size: 34px;
+        letter-spacing: 0.2px;
+      }
+      .hero p {
+        margin: 0;
+        color: var(--muted);
+        max-width: 980px;
+      }
+
+      .toolbar {
+        margin-top: 18px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .layout {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 20px;
       }
-      .triple {
+
+      .stack {
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 16px;
+        gap: 20px;
+        align-content: start;
       }
+
+      .three {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 20px;
+      }
+
       .card {
-        background: #141b2d;
-        border: 1px solid #27314f;
-        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: var(--panel);
+        backdrop-filter: blur(16px);
+        border-radius: 22px;
+        padding: 20px;
+        box-shadow: var(--shadow);
+      }
+
+      .card h2,
+      .card h3 {
+        margin: 0 0 12px;
+        font-weight: 700;
+      }
+
+      .row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .row + .row {
+        margin-top: 12px;
+      }
+
+      .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .metric {
         padding: 16px;
+        border-radius: 18px;
+        background: linear-gradient(
+          180deg,
+          rgba(15, 23, 42, 0.9),
+          rgba(17, 24, 39, 0.65)
+        );
+        border: 1px solid var(--border);
       }
-      h1,
-      h2,
-      h3 {
-        margin-top: 0;
+
+      .metric .label {
+        color: var(--muted);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
       }
-      textarea,
+      .metric .value {
+        margin-top: 8px;
+        font-size: 26px;
+        font-weight: 800;
+      }
+
       input,
-      pre {
-        width: 100%;
-        border-radius: 8px;
-        border: 1px solid #33415c;
-        background: #0d1323;
-        color: #e7ecf5;
-        padding: 10px;
-      }
-      textarea {
-        min-height: 180px;
-      }
-      pre {
-        overflow-x: auto;
-        overflow-y: auto;
-      }
+      textarea,
+      select,
       button {
-        background: #3b82f6;
-        color: white;
+        font: inherit;
+      }
+
+      input,
+      textarea,
+      select {
+        width: 100%;
+        color: var(--text);
+        background: rgba(2, 6, 23, 0.75);
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        border-radius: 14px;
+        padding: 12px 14px;
+        outline: none;
+      }
+
+      input:focus,
+      textarea:focus,
+      select:focus {
+        border-color: rgba(96, 165, 250, 0.55);
+      }
+
+      textarea {
+        min-height: 220px;
+        resize: vertical;
+      }
+
+      button {
         border: none;
-        border-radius: 8px;
-        padding: 10px 14px;
+        border-radius: 14px;
+        padding: 11px 16px;
         cursor: pointer;
-        margin-right: 8px;
+        color: white;
+        background: linear-gradient(135deg, var(--brand), var(--brand-2));
+        transition:
+          transform 0.12s ease,
+          opacity 0.12s ease;
+      }
+
+      button:hover:not(:disabled) {
+        transform: translateY(-1px);
       }
       button.secondary {
         background: #334155;
       }
+      button.ghost {
+        background: rgba(51, 65, 85, 0.55);
+        border: 1px solid var(--border);
+      }
+      button.danger {
+        background: linear-gradient(135deg, #ef4444, #b91c1c);
+      }
       button:disabled {
         opacity: 0.5;
         cursor: not-allowed;
+        transform: none;
       }
-      .muted {
-        color: #9fb0d0;
-        font-size: 12px;
-      }
-      .row {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-        align-items: center;
-        margin: 8px 0;
-      }
+
       .pill {
-        display: inline-block;
-        padding: 4px 8px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 10px;
         border-radius: 999px;
-        background: #1d4ed8;
+        background: rgba(59, 130, 246, 0.2);
+        border: 1px solid rgba(96, 165, 250, 0.25);
         font-size: 12px;
       }
       .pill.success {
-        background-color: #15803d;
+        color: #bbf7d0;
+        background: rgba(34, 197, 94, 0.18);
+        border-color: rgba(34, 197, 94, 0.26);
       }
       .pill.warn {
-        background-color: #ca8a04;
+        color: #fde68a;
+        background: rgba(245, 158, 11, 0.18);
+        border-color: rgba(245, 158, 11, 0.26);
       }
       .pill.danger {
-        background-color: #b91c1c;
-      }
-      .alert-danger {
-        border: 1px solid #991b1b;
-        background-color: #270c0c;
-        padding: 12px;
-        border-radius: 8px;
-        margin: 12px 0;
-      }
-      .alert-warn {
-        border: 1px solid #854d0e;
-        background-color: #291c07;
-        padding: 12px;
-        border-radius: 8px;
-        margin: 12px 0;
-      }
-      .pre-wrap {
-        position: relative;
-      }
-      .pre-wrap pre {
-        max-height: 320px;
-        overflow-x: auto;
-        overflow-y: auto;
-      }
-      .pre-wrap button.copy {
-        position: absolute;
-        top: 6px;
-        right: 6px;
-        padding: 4px 8px;
-        font-size: 12px;
-      }
-      .service-item {
-        border: 1px solid #27314f;
-        border-radius: 8px;
-        padding: 8px;
-        margin: 6px 0;
+        color: #fecaca;
+        background: rgba(239, 68, 68, 0.18);
+        border-color: rgba(239, 68, 68, 0.26);
       }
 
-      /* 响应式：窄屏幕全部折叠为单列 */
-      @media (max-width: 768px) {
-        .grid {
+      .muted {
+        color: var(--muted);
+      }
+      .mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      }
+
+      .alert {
+        padding: 14px 16px;
+        border-radius: 16px;
+        border: 1px solid transparent;
+        margin-bottom: 20px;
+      }
+      .alert.danger {
+        background: rgba(127, 29, 29, 0.28);
+        border-color: rgba(239, 68, 68, 0.32);
+      }
+      .alert.warn {
+        background: rgba(113, 63, 18, 0.28);
+        border-color: rgba(245, 158, 11, 0.28);
+      }
+      .alert.success {
+        background: rgba(20, 83, 45, 0.28);
+        border-color: rgba(34, 197, 94, 0.28);
+      }
+
+      .surface {
+        border: 1px solid var(--border);
+        background: rgba(2, 6, 23, 0.45);
+        border-radius: 18px;
+        padding: 14px;
+      }
+
+      .scroll {
+        max-height: 360px;
+        overflow: auto;
+      }
+
+      pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .list {
+        display: grid;
+        gap: 12px;
+      }
+
+      .service-item,
+      .tool-item,
+      .log-item {
+        border: 1px solid var(--border);
+        background: var(--panel-2);
+        border-radius: 18px;
+        padding: 14px;
+      }
+
+      .split {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+
+      .hint {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      @media (max-width: 1200px) {
+        .layout,
+        .three,
+        .metric-grid,
+        .split {
           grid-template-columns: 1fr;
-        }
-        .triple {
-          grid-template-columns: 1fr;
-        }
-        .wrap {
-          padding: 16px 12px;
         }
       }
     </style>
   </head>
   <body>
-    <div class="wrap">
-      <h1>OpenAPI MCP Console</h1>
+    <div class="shell">
+      <section class="hero">
+        <h1>OpenAPI MCP Console</h1>
+        <p>
+          Load an OpenAPI 3.2 document, inspect generated MCP tools, prompts,
+          and resources, manage the active service, test tool execution over
+          HTTP, and review runtime request logs.
+        </p>
+        <div class="toolbar">
+          <span
+            class="pill"
+            title="Streamable HTTP transport, preferred for new clients."
+            >Streamable HTTP: <span class="mono">/mcp</span></span
+          >
+          <span
+            class="pill"
+            title="Legacy HTTP+SSE transport, kept for older clients."
+            >Legacy SSE: <span class="mono">/sse</span></span
+          >
+          <span
+            class="pill danger"
+            title="STDIO is available through the CLI only. Browsers cannot open STDIO transports."
+            >STDIO CLI Only</span
+          >
+          <label class="pill"
+            ><input
+              id="autoRefresh"
+              type="checkbox"
+              checked
+              style="width: auto"
+            />
+            Auto refresh every 3 seconds</label
+          >
+        </div>
+      </section>
 
       <div id="globalAlert"></div>
 
-      <div class="grid">
-        <div class="card">
-          <h2>Connection</h2>
-          <input id="apiKey" placeholder="x-api-key (optional)" />
-          <p class="muted">
-            If admin authentication is enabled, every request must include the
-            same API key.
-          </p>
-          <div class="row">
-            <label
-              ><input id="autoRefresh" type="checkbox" checked /> Auto refresh
-              status(3s)</label
-            >
+      <section class="card" style="margin-bottom: 20px">
+        <div class="metric-grid">
+          <div class="metric">
+            <div class="label">Spec Loaded</div>
+            <div class="value" id="metricSpecLoaded">No</div>
+          </div>
+          <div class="metric">
+            <div class="label">Active Service</div>
+            <div class="value" id="metricActive">No</div>
+          </div>
+          <div class="metric">
+            <div class="label">Tools</div>
+            <div class="value" id="metricTools">0</div>
+          </div>
+          <div class="metric">
+            <div class="label">Prompts</div>
+            <div class="value" id="metricPrompts">0</div>
+          </div>
+          <div class="metric">
+            <div class="label">Resources</div>
+            <div class="value" id="metricResources">0</div>
           </div>
         </div>
-        <div class="card">
-          <h2>MCP Debug</h2>
-          <div class="row">
-            <span class="pill">HTTP + SSE</span><code>/mcp</code>
-          </div>
-          <div class="row">
-            <span class="pill danger">STDIO</span>
-            <span class="muted"
-              >STDIO only available via CLI. Browser only supports SSE
-              transport.</span
-            >
-          </div>
-          <div class="row">
-            <span>Active SSE Sessions:</span>
-            <span id="sessionCount" class="pill">0</span>
-          </div>
-          <div class="alert-warn" id="mcpWarnBlock" style="display: none">
-            ⚠️ MCP Service is NOT running. Connecting client will get:
-            <b>No prompts / No resources were found on this server</b>. After
-            Start service, <b>re‑establish your MCP SSE connection</b> (old
-            sessions will not auto‑recover).
-          </div>
+      </section>
+
+      <div class="layout">
+        <div class="stack">
+          <section class="card">
+            <h2>Load OpenAPI Document</h2>
+            <div class="row">
+              <input type="file" id="fileInput" accept=".json,.yaml,.yml" />
+              <button id="btnUpload">Upload File</button>
+            </div>
+            <div class="row">
+              <textarea
+                id="content"
+                placeholder="Paste JSON or YAML here"
+              ></textarea>
+            </div>
+            <div class="row">
+              <label class="pill"
+                ><input id="isYaml" type="checkbox" style="width: auto" /> Force
+                YAML</label
+              >
+              <button id="btnPaste">Load Text</button>
+              <button id="btnClear" class="secondary">Clear Spec</button>
+            </div>
+          </section>
+
+          <section class="card">
+            <h2>Runtime Configuration</h2>
+            <div class="row">
+              <input
+                id="apiKey"
+                type="password"
+                autocomplete="off"
+                placeholder="API key (optional)"
+              />
+              <input
+                id="baseUrl"
+                placeholder="Override upstream base URL (optional)"
+              />
+              <button id="btnSaveBaseUrl">Save Base URL</button>
+            </div>
+            <div class="hint">
+              The API key is kept for this browser tab only and is sent as both
+              <span class="mono">Authorization: Bearer</span> and
+              <span class="mono">x-api-key</span>. Use the base URL override
+              when the document's server URL is not routable from this host.
+            </div>
+          </section>
+
+          <section class="card">
+            <h2>Managed Services</h2>
+            <div id="serviceList" class="list"></div>
+          </section>
+
+          <section class="card">
+            <h2>Request Logs</h2>
+            <div class="row">
+              <button id="btnRefreshLogs" class="ghost">Refresh Logs</button>
+              <button id="btnClearLogs" class="danger">Clear Logs</button>
+            </div>
+            <div id="logList" class="list" style="margin-top: 12px"></div>
+          </section>
+        </div>
+
+        <div class="stack">
+          <section class="card">
+            <h2>Status</h2>
+            <div id="statusFlags" class="row"></div>
+            <div class="surface scroll" style="margin-top: 12px">
+              <pre id="status" class="mono"></pre>
+            </div>
+          </section>
+
+          <section class="card">
+            <h2>MCP Debugger</h2>
+            <div class="row">
+              <select id="toolSelect"></select>
+            </div>
+            <div class="row">
+              <textarea id="toolArgs" placeholder='{"id":"123"}'></textarea>
+            </div>
+            <div class="row">
+              <button id="btnDebugCall">Call Tool</button>
+              <button id="btnCancelCall" class="secondary" disabled>
+                Cancel
+              </button>
+            </div>
+            <div class="hint" style="margin-top: 8px">
+              This sends a real upstream request using the active service
+              context, credentials included.
+            </div>
+            <div class="surface scroll" style="margin-top: 12px">
+              <pre id="debugResult" class="mono"></pre>
+            </div>
+          </section>
         </div>
       </div>
 
-      <div class="card">
-        <h2>Load OpenAPI Document</h2>
-        <div class="row">
-          <input type="file" id="fileInput" accept=".json,.yaml,.yml" />
-          <button id="btnUpload" onclick="uploadFile()">Upload File</button>
-        </div>
-        <textarea id="content" placeholder="Paste JSON or YAML here"></textarea>
-        <div class="row">
-          <label
-            ><input id="isYaml" type="checkbox" /> Force parse as YAML
-            (auto‑detect recommended)</label
-          >
-          <button id="btnPaste" onclick="pasteSpec()">Load Text</button>
-          <button class="secondary" id="btnClear" onclick="clearSpec()">
-            Clear Spec
-          </button>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Status</h2>
-        <div class="pre-wrap">
-          <pre id="status"></pre>
-          <button
-            class="copy"
-            onclick="copyText(document.getElementById('status').textContent)"
-          >
-            copy
-          </button>
-        </div>
-      </div>
-
-      <div class="triple">
-        <div class="card">
+      <section class="three" style="margin-top: 20px">
+        <section class="card">
           <h3>Tools</h3>
-          <div class="pre-wrap">
-            <pre id="tools"></pre>
-            <button
-              class="copy"
-              onclick="copyText(document.getElementById('tools').textContent)"
-            >
-              copy
-            </button>
-          </div>
-        </div>
-        <div class="card">
+          <div id="toolCatalog" class="list"></div>
+        </section>
+        <section class="card">
           <h3>Prompts</h3>
-          <div class="pre-wrap">
-            <pre id="prompts"></pre>
-            <button
-              class="copy"
-              onclick="copyText(document.getElementById('prompts').textContent)"
-            >
-              copy
-            </button>
+          <div class="surface scroll">
+            <pre id="prompts" class="mono"></pre>
           </div>
-        </div>
-        <div class="card">
+        </section>
+        <section class="card">
           <h3>Resources</h3>
-          <div class="pre-wrap">
-            <pre id="resources"></pre>
-            <button
-              class="copy"
-              onclick="
-                copyText(document.getElementById('resources').textContent)
-              "
-            >
-              copy
-            </button>
+          <div class="surface scroll">
+            <pre id="resources" class="mono"></pre>
           </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Managed Services</h2>
-        <div id="serviceList"></div>
-        <div class="row">
-          <input id="serviceId" placeholder="service id" />
-          <button id="btnStart" onclick="startService()">Start</button>
-          <button class="secondary" id="btnStop" onclick="stopService()">
-            Stop
-          </button>
-        </div>
-      </div>
+        </section>
+      </section>
     </div>
 
     <script>
-      let autoRefreshTimer = null;
+      "use strict";
 
-      function headers(extra = {}) {
-        const apiKey = document.getElementById("apiKey").value.trim();
+      const API_KEY_STORAGE = "openapi-mcp-console.apiKey";
+
+      let autoRefreshTimer = null;
+      let latestToolsPayload = { tools: [], bindings: [], issues: [] };
+
+      /* ------------------------------------------------------------------ */
+      /* Element handles                                                    */
+      /* ------------------------------------------------------------------ */
+
+      const el = {
+        alert: document.getElementById("globalAlert"),
+        apiKey: document.getElementById("apiKey"),
+        baseUrl: document.getElementById("baseUrl"),
+        autoRefresh: document.getElementById("autoRefresh"),
+        fileInput: document.getElementById("fileInput"),
+        content: document.getElementById("content"),
+        isYaml: document.getElementById("isYaml"),
+        status: document.getElementById("status"),
+        statusFlags: document.getElementById("statusFlags"),
+        prompts: document.getElementById("prompts"),
+        resources: document.getElementById("resources"),
+        serviceList: document.getElementById("serviceList"),
+        logList: document.getElementById("logList"),
+        toolCatalog: document.getElementById("toolCatalog"),
+        toolSelect: document.getElementById("toolSelect"),
+        toolArgs: document.getElementById("toolArgs"),
+        debugResult: document.getElementById("debugResult"),
+        btnCancelCall: document.getElementById("btnCancelCall"),
+      };
+
+      /* ------------------------------------------------------------------ */
+      /* Primitives                                                         */
+      /* ------------------------------------------------------------------ */
+
+      function escapeHtml(value) {
+        return String(value ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
+      }
+
+      function pretty(value) {
+        try {
+          return JSON.stringify(value, null, 2);
+        } catch {
+          return "[unserializable payload]";
+        }
+      }
+
+      function isAbortError(error) {
+        return error instanceof DOMException
+          ? error.name === "AbortError"
+          : error && error.name === "AbortError";
+      }
+
+      /**
+       * Thrown for a rejected credential so callers can stop polling instead of
+       * repeating a request that can never succeed.
+       */
+      class UnauthorizedError extends Error {
+        constructor(message) {
+          super(
+            message || "Unauthorized: the API key is missing or incorrect.",
+          );
+          this.name = "UnauthorizedError";
+        }
+      }
+
+      function authHeaders(extra = {}) {
+        const apiKey = el.apiKey.value.trim();
         const merged = { ...extra };
-        if (apiKey) merged["x-api-key"] = apiKey;
+        if (apiKey) {
+          // Both forms are sent: MCP clients commonly only allow configuring
+          // Authorization, while the admin API historically used x-api-key.
+          merged["x-api-key"] = apiKey;
+          merged["Authorization"] = `Bearer ${apiKey}`;
+        }
         return merged;
       }
 
       async function request(url, options = {}) {
         const response = await fetch(url, options);
         const body = await response.json().catch(() => ({}));
-        if (!response.ok)
-          throw new Error(body.error || `HTTP ${response.status}`);
+        if (response.status === 401 || response.status === 403) {
+          throw new UnauthorizedError(body.error);
+        }
+        if (!response.ok) {
+          throw new Error(
+            body.error || `HTTP ${response.status} ${response.statusText}`,
+          );
+        }
         return body;
       }
 
-      function setButtonsDisabled(disabled) {
-        document.querySelectorAll("button").forEach((btn) => {
-          if (!btn.classList.contains("copy")) btn.disabled = disabled;
+      function showAlert(message, type = "danger") {
+        el.alert.innerHTML = `<div class="alert ${type}">${escapeHtml(message)}</div>`;
+      }
+
+      function clearAlert() {
+        el.alert.innerHTML = "";
+      }
+
+      /**
+       * Reference-counted busy state.
+       *
+       * A plain boolean lets whichever operation finishes first re-enable the
+       * buttons belonging to an operation that is still running.
+       */
+      let busyDepth = 0;
+      function setBusy(busy) {
+        busyDepth = Math.max(0, busyDepth + (busy ? 1 : -1));
+        const disabled = busyDepth > 0;
+        document.querySelectorAll("button").forEach((button) => {
+          if (button === el.btnCancelCall) return;
+          button.disabled = disabled;
         });
       }
 
-      function showGlobalAlert(msg, type = "danger") {
-        const container = document.getElementById("globalAlert");
-        const cls = type === "danger" ? "alert-danger" : "alert-warn";
-        container.innerHTML = `<div class="${cls}">${msg}</div>`;
-      }
-      function clearAlert() {
-        document.getElementById("globalAlert").innerHTML = "";
-      }
-
-      async function refreshAll() {
+      /** Wraps a user-initiated action with busy state and error reporting. */
+      async function run(action) {
         clearAlert();
+        setBusy(true);
         try {
-          const [status, tools, prompts, resources, services] =
-            await Promise.all([
-              request("/api/status", { headers: headers() }),
-              request("/api/tools", { headers: headers() }),
-              request("/api/prompts", { headers: headers() }),
-              request("/api/resources", { headers: headers() }),
-              request("/api/servers", { headers: headers() }),
-            ]);
-
-          document.getElementById("status").textContent = JSON.stringify(
-            status,
-            null,
-            2,
-          );
-          document.getElementById("tools").textContent = JSON.stringify(
-            tools,
-            null,
-            2,
-          );
-          document.getElementById("prompts").textContent = JSON.stringify(
-            prompts,
-            null,
-            2,
-          );
-          document.getElementById("resources").textContent = JSON.stringify(
-            resources,
-            null,
-            2,
-          );
-          document.getElementById("sessionCount").innerText =
-            status.activeSessions ?? 0;
-
-          const warnBlock = document.getElementById("mcpWarnBlock");
-          if (!status.active) {
-            warnBlock.style.display = "block";
-          } else {
-            warnBlock.style.display = "none";
-          }
-
-          renderServiceList(services.services);
+          await action();
         } catch (error) {
-          showGlobalAlert(`Refresh failed: ${error.message}`);
+          if (isAbortError(error)) return;
+          showAlert(error.message);
+          if (error instanceof UnauthorizedError) stopAutoRefresh();
+        } finally {
+          setBusy(false);
         }
+      }
+
+      /* ------------------------------------------------------------------ */
+      /* Rendering                                                          */
+      /* ------------------------------------------------------------------ */
+
+      function renderFlags(status) {
+        const flags = [
+          `<span class="pill ${status.specLoaded ? "success" : "warn"}">Spec ${status.specLoaded ? "Loaded" : "Missing"}</span>`,
+          `<span class="pill ${status.active ? "success" : "danger"}">Service ${status.active ? "Running" : "Stopped"}</span>`,
+          `<span class="pill" title="Streamable HTTP and legacy SSE sessions combined.">Active Sessions ${escapeHtml(status.activeSessions ?? 0)}</span>`,
+        ];
+        if ((status.degradedToolCount ?? 0) > 0) {
+          flags.push(
+            `<span class="pill warn">Degraded Tools ${escapeHtml(status.degradedToolCount)}</span>`,
+          );
+        }
+        if (status.authRequired) {
+          flags.push(`<span class="pill">Auth Required</span>`);
+        }
+        flags.push(
+          `<span class="pill warn" title="STDIO is available from the CLI only because browsers cannot speak STDIO.">STDIO CLI Only</span>`,
+        );
+        el.statusFlags.innerHTML = flags.join("");
+      }
+
+      function renderMetrics(status) {
+        document.getElementById("metricSpecLoaded").textContent =
+          status.specLoaded ? "Yes" : "No";
+        document.getElementById("metricActive").textContent = status.active
+          ? "Yes"
+          : "No";
+        document.getElementById("metricTools").textContent = String(
+          status.toolCount ?? 0,
+        );
+        document.getElementById("metricPrompts").textContent = String(
+          status.promptCount ?? 0,
+        );
+        document.getElementById("metricResources").textContent = String(
+          status.resourceCount ?? 0,
+        );
+
+        // Never clobber a field the user is editing. This runs on a 3s timer, so
+        // overwriting mid-keystroke — or blanking the field because the server has
+        // no override configured — makes the input look broken.
+        const editing =
+          document.activeElement === el.baseUrl ||
+          el.baseUrl.dataset.dirty === "1";
+        if (!editing) el.baseUrl.value = status.baseUrl || "";
       }
 
       function renderServiceList(services) {
-        const el = document.getElementById("serviceList");
         if (!services || services.length === 0) {
-          el.innerHTML = `<div class="muted">No managed services.</div>`;
+          el.serviceList.innerHTML = `<div class="muted">No services available.</div>`;
           return;
         }
-        el.innerHTML = services
-          .map((svc) => {
-            const statusPillClass =
-              svc.status === "running"
+
+        el.serviceList.innerHTML = services
+          .map((service) => {
+            const pillClass =
+              service.status === "running"
                 ? "success"
-                : svc.status === "stopped"
+                : service.status === "stopped"
                   ? "warn"
                   : "danger";
+            const lastError = service.lastError
+              ? `<div class="hint" style="margin-top:8px;color:#fecaca;">${escapeHtml(service.lastError.message)} (${escapeHtml(service.lastError.at)})</div>`
+              : "";
             return `
-        <div class="service-item">
-          <div><b>${svc.id}</b> <span class="pill ${statusPillClass}">${svc.status}</span></div>
-          <div class="muted">${svc.title} ${svc.version}</div>
-          <div class="row">
-            <button class="secondary" onclick="fillServiceId('${svc.id}')">Select this id</button>
-          </div>
-        </div>
-        `;
+            <div class="service-item">
+              <div class="row">
+                <strong>${escapeHtml(service.title)}</strong>
+                <span class="pill ${pillClass}">${escapeHtml(service.status)}</span>
+                <span class="pill mono">${escapeHtml(service.id)}</span>
+              </div>
+              <div class="hint" style="margin-top:8px;">Version ${escapeHtml(service.version)} · Source ${escapeHtml(service.source)} · Tools ${escapeHtml(service.toolCount)} · Prompts ${escapeHtml(service.promptCount)} · Resources ${escapeHtml(service.resourceCount)}</div>
+              ${service.baseUrl ? `<div class="hint mono" style="margin-top:6px;">${escapeHtml(service.baseUrl)}</div>` : ""}
+              ${lastError}
+              <div class="row" style="margin-top:10px;">
+                <button class="ghost" data-action="start" data-id="${escapeHtml(service.id)}">Start</button>
+                <button class="secondary" data-action="stop" data-id="${escapeHtml(service.id)}">Stop</button>
+              </div>
+            </div>
+          `;
           })
           .join("");
       }
 
-      function fillServiceId(id) {
-        document.getElementById("serviceId").value = id;
+      /** Reads the required flag from either the projected DTO or a raw binding. */
+      function argumentIsRequired(argument) {
+        if (typeof argument.required === "boolean") return argument.required;
+        return argument.parameter?.required === true;
       }
 
-      async function uploadFile() {
-        const file = document.getElementById("fileInput").files[0];
-        if (!file) {
-          showGlobalAlert("Select a file first.", "warn");
+      function renderToolCatalog(payload) {
+        const tools = payload.tools || [];
+        const bindings = payload.bindings || [];
+
+        if (tools.length === 0) {
+          el.toolCatalog.innerHTML = `<div class="muted">No tools generated.</div>`;
+          el.toolSelect.innerHTML = `<option value="">No tools available</option>`;
           return;
         }
-        if (file.size > 20 * 1024 * 1024) {
-          showGlobalAlert("File exceed max size(20MB)");
+
+        // Preserve the operator's selection across the 3s refresh; otherwise the
+        // dropdown snaps back to the first tool and stops matching the arguments
+        // already typed below it.
+        const previous = el.toolSelect.value;
+        el.toolSelect.innerHTML = tools
+          .map(
+            (tool) =>
+              `<option value="${escapeHtml(tool.name)}">${escapeHtml(tool.name)}</option>`,
+          )
+          .join("");
+        if (previous && tools.some((tool) => tool.name === previous)) {
+          el.toolSelect.value = previous;
+        }
+
+        const bindingMap = new Map(
+          bindings.map((item) => [item.toolName, item]),
+        );
+
+        el.toolCatalog.innerHTML = tools
+          .map((tool) => {
+            const binding = bindingMap.get(tool.name) || {};
+            const supportPill = binding.fullySupported
+              ? `<span class="pill success">Full Support</span>`
+              : `<span class="pill warn">Partial Support</span>`;
+            const customPill =
+              binding.isStandardMethod === false
+                ? `<span class="pill danger" title="Custom method from additionalOperations; no HTTP semantics are assumed.">Custom Method</span>`
+                : "";
+            const args = (binding.arguments || [])
+              .map(
+                (argument) =>
+                  `${argument.key} → ${argument.in}${argumentIsRequired(argument) ? " (required)" : ""}`,
+              )
+              .join(", ");
+            const bodyLine = binding.bodyKey
+              ? `<div class="hint" style="margin-top:6px;">Body: <span class="mono">${escapeHtml(binding.bodyKey)}</span> as ${escapeHtml(binding.bodyMediaType || binding.bodyEncoding || "unknown")}${binding.bodyRequired ? " (required)" : ""}</div>`
+              : "";
+            const omitted = (binding.omittedParameters || []).length
+              ? `<div class="hint" style="margin-top:6px;">Server-managed: ${escapeHtml(binding.omittedParameters.map((entry) => entry.name).join(", "))}</div>`
+              : "";
+            const notes = (binding.usageNotes || []).length
+              ? `<div class="hint" style="margin-top:6px;">Note: ${escapeHtml(binding.usageNotes.join(" | "))}</div>`
+              : "";
+            const reasons = (binding.degradationReasons || []).length
+              ? `<div class="hint" style="margin-top:6px;color:#fde68a;">${escapeHtml(binding.degradationReasons.join(" | "))}</div>`
+              : "";
+            return `
+            <div class="tool-item">
+              <div class="row">
+                <strong class="mono">${escapeHtml(tool.name)}</strong>
+                ${supportPill}
+                ${customPill}
+                <span class="pill mono">${escapeHtml((binding.method || "").toUpperCase())} ${escapeHtml(binding.path || "")}</span>
+              </div>
+              <div class="hint" style="margin-top:8px;">${escapeHtml(tool.description || "")}</div>
+              <div class="hint" style="margin-top:6px;">Arguments: ${escapeHtml(args || "None")}</div>
+              ${bodyLine}
+              ${omitted}
+              ${notes}
+              ${reasons}
+            </div>
+          `;
+          })
+          .join("");
+      }
+
+      function renderLogs(logs) {
+        if (!logs || logs.length === 0) {
+          el.logList.innerHTML = `<div class="muted">No logs recorded yet.</div>`;
           return;
         }
-        setButtonsDisabled(true);
+
+        el.logList.innerHTML = logs
+          .map((log) => {
+            const pillClass =
+              log.success === true
+                ? "success"
+                : log.success === false
+                  ? "danger"
+                  : "warn";
+            const duration =
+              typeof log.durationMs === "number"
+                ? `<span class="pill mono">${escapeHtml(log.durationMs)}ms</span>`
+                : "";
+            const truncated = log.truncated
+              ? `<span class="pill warn">truncated</span>`
+              : "";
+            return `
+            <div class="log-item">
+              <div class="row">
+                <span class="pill ${pillClass}">${escapeHtml(log.direction)}</span>
+                <span class="pill mono">${escapeHtml(log.method || log.protocol || "internal")}</span>
+                <span class="pill mono">${escapeHtml(log.status ?? "-")}</span>
+                ${duration}
+                ${truncated}
+                <span class="hint">${escapeHtml(log.at)}</span>
+              </div>
+              <div class="hint mono" style="margin-top:8px;">${escapeHtml(log.toolName || "")} ${escapeHtml(log.url || "")}</div>
+              ${log.error ? `<div class="hint" style="margin-top:6px;color:#fecaca;">${escapeHtml(log.error)}</div>` : ""}
+              <details style="margin-top:10px;">
+                <summary class="hint">View payload</summary>
+                <div class="surface" style="margin-top:10px;"><pre class="mono">${escapeHtml(pretty(log))}</pre></div>
+              </details>
+            </div>
+          `;
+          })
+          .join("");
+      }
+
+      /* ------------------------------------------------------------------ */
+      /* Data loading                                                       */
+      /* ------------------------------------------------------------------ */
+
+      let refreshInFlight = false;
+      let refreshController = null;
+
+      async function refreshLogs(signal) {
+        const data = await request("/api/logs", {
+          headers: authHeaders(),
+          ...(signal ? { signal } : {}),
+        });
+        renderLogs(data.logs || []);
+      }
+
+      /**
+       * Reloads every panel.
+       *
+       * Deliberately does not touch the alert area: this also runs on a timer, and
+       * clearing the banner here would erase an error the operator has not read
+       * yet. A single in-flight guard prevents overlapping polls from rendering a
+       * stale snapshot over a fresh one when the server is slow.
+       */
+      async function refreshAll() {
+        if (refreshInFlight) return;
+        refreshInFlight = true;
+        refreshController?.abort();
+        refreshController = new AbortController();
+        const { signal } = refreshController;
+
         try {
+          const headers = authHeaders();
+          const get = (url) => request(url, { headers, signal });
+          const [status, tools, prompts, resources, servers] =
+            await Promise.all([
+              get("/api/status"),
+              get("/api/tools"),
+              get("/api/prompts"),
+              get("/api/resources"),
+              get("/api/servers"),
+            ]);
+
+          latestToolsPayload = tools;
+          el.status.textContent = pretty(status);
+          el.prompts.textContent = pretty(prompts);
+          el.resources.textContent = pretty(resources);
+
+          renderFlags(status);
+          renderMetrics(status);
+          renderServiceList(servers.services || []);
+          renderToolCatalog(tools);
+
+          await refreshLogs(signal);
+        } finally {
+          refreshInFlight = false;
+        }
+      }
+
+      /* ------------------------------------------------------------------ */
+      /* Actions                                                            */
+      /* ------------------------------------------------------------------ */
+
+      function uploadFile() {
+        return run(async () => {
+          const file = el.fileInput.files[0];
+          if (!file) {
+            showAlert("Select a file first.", "warn");
+            return;
+          }
           const form = new FormData();
           form.append("file", file);
+          // No Content-Type here: the boundary must be generated by fetch.
           await request("/api/spec/upload", {
             method: "POST",
             body: form,
-            headers: headers(),
+            headers: authHeaders(),
           });
+          showAlert(`Loaded "${file.name}".`, "success");
           await refreshAll();
-        } catch (err) {
-          showGlobalAlert(err.message);
-        } finally {
-          setButtonsDisabled(false);
-        }
+        });
       }
 
-      async function pasteSpec() {
-        const content = document.getElementById("content").value;
-        const isYaml = document.getElementById("isYaml").checked;
-        if (!content.trim()) {
-          showGlobalAlert("Content cannot be empty", "warn");
-          return;
-        }
-        setButtonsDisabled(true);
-        try {
+      function pasteSpec() {
+        return run(async () => {
+          const content = el.content.value;
+          if (!content.trim()) {
+            showAlert("Content cannot be empty.", "warn");
+            return;
+          }
           await request("/api/spec/paste", {
             method: "POST",
-            headers: headers({ "Content-Type": "application/json" }),
-            body: JSON.stringify({ content, isYaml }),
+            headers: authHeaders({ "Content-Type": "application/json" }),
+            body: JSON.stringify({ content, isYaml: el.isYaml.checked }),
           });
+          showAlert("Specification applied.", "success");
           await refreshAll();
-        } catch (err) {
-          showGlobalAlert(err.message);
-        } finally {
-          setButtonsDisabled(false);
-        }
+        });
       }
 
-      async function clearSpec() {
-        setButtonsDisabled(true);
-        try {
+      function clearSpec() {
+        return run(async () => {
+          if (
+            !window.confirm(
+              "Clear the loaded specification and stop the service?",
+            )
+          )
+            return;
           await request("/api/spec/clear", {
             method: "POST",
-            headers: headers(),
+            headers: authHeaders(),
           });
           await refreshAll();
-        } catch (err) {
-          showGlobalAlert(err.message);
-        } finally {
-          setButtonsDisabled(false);
-        }
+        });
       }
 
-      async function startService() {
-        const id = document.getElementById("serviceId").value.trim();
-        if (!id) {
-          showGlobalAlert("Enter or select a service id.", "warn");
-          return;
-        }
-        setButtonsDisabled(true);
-        try {
+      function saveBaseUrl() {
+        return run(async () => {
+          const baseUrl = el.baseUrl.value.trim();
+          await request("/api/config/base-url", {
+            method: "POST",
+            headers: authHeaders({ "Content-Type": "application/json" }),
+            body: JSON.stringify({ baseUrl }),
+          });
+          delete el.baseUrl.dataset.dirty;
+          showAlert(
+            baseUrl ? "Base URL override saved." : "Base URL override removed.",
+            "success",
+          );
+          await refreshAll();
+        });
+      }
+
+      function startService(id) {
+        return run(async () => {
           await request(`/api/servers/${encodeURIComponent(id)}/start`, {
             method: "POST",
-            headers: headers(),
+            headers: authHeaders(),
           });
           await refreshAll();
-        } catch (err) {
-          showGlobalAlert(err.message);
-        } finally {
-          setButtonsDisabled(false);
-        }
+        });
       }
 
-      async function stopService() {
-        const id = document.getElementById("serviceId").value.trim();
-        if (!id) {
-          showGlobalAlert("Enter or select a service id.", "warn");
-          return;
-        }
-        setButtonsDisabled(true);
-        try {
+      function stopService(id) {
+        return run(async () => {
           await request(`/api/servers/${encodeURIComponent(id)}/stop`, {
             method: "POST",
-            headers: headers(),
+            headers: authHeaders(),
           });
           await refreshAll();
-        } catch (err) {
-          showGlobalAlert(err.message);
-        } finally {
-          setButtonsDisabled(false);
-        }
+        });
       }
 
-      function copyText(text) {
-        navigator.clipboard.writeText(text).catch((e) => console.warn(e));
+      let debugController = null;
+
+      function debugCallTool() {
+        return run(async () => {
+          const toolName = el.toolSelect.value;
+          if (!toolName) {
+            showAlert("No tool is selected.", "warn");
+            return;
+          }
+
+          const rawArgs = el.toolArgs.value.trim();
+          let args = {};
+          if (rawArgs) {
+            try {
+              args = JSON.parse(rawArgs);
+            } catch (error) {
+              showAlert(
+                `Tool arguments must be valid JSON: ${error.message}`,
+                "warn",
+              );
+              return;
+            }
+          }
+          if (
+            args === null ||
+            typeof args !== "object" ||
+            Array.isArray(args)
+          ) {
+            showAlert("Tool arguments must be a JSON object.", "warn");
+            return;
+          }
+
+          debugController = new AbortController();
+          el.btnCancelCall.disabled = false;
+          try {
+            const result = await request("/api/debug/call-tool", {
+              method: "POST",
+              headers: authHeaders({ "Content-Type": "application/json" }),
+              body: JSON.stringify({ toolName, arguments: args }),
+              signal: debugController.signal,
+            });
+            el.debugResult.textContent = pretty(result);
+          } finally {
+            el.btnCancelCall.disabled = true;
+            debugController = null;
+          }
+          await refreshLogs();
+        });
+      }
+
+      function cancelDebugCall() {
+        debugController?.abort();
+        el.debugResult.textContent = "Cancelled by the operator.";
+      }
+
+      function clearLogs() {
+        return run(async () => {
+          await request("/api/logs/clear", {
+            method: "POST",
+            headers: authHeaders(),
+          });
+          await refreshLogs();
+        });
+      }
+
+      /* ------------------------------------------------------------------ */
+      /* Auto refresh                                                       */
+      /* ------------------------------------------------------------------ */
+
+      function stopAutoRefresh() {
+        if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+        autoRefreshTimer = null;
+        el.autoRefresh.checked = false;
       }
 
       function setupAutoRefresh() {
         if (autoRefreshTimer) clearInterval(autoRefreshTimer);
-        const enabled = document.getElementById("autoRefresh").checked;
-        if (enabled) {
-          autoRefreshTimer = setInterval(() => {
-            refreshAll().catch((e) => console.warn(e));
-          }, 3000);
-        }
+        autoRefreshTimer = null;
+        if (!el.autoRefresh.checked) return;
+
+        autoRefreshTimer = setInterval(() => {
+          refreshAll().catch((error) => {
+            if (isAbortError(error)) return;
+            // A rejected credential would otherwise fail silently every 3s, and the
+            // console would simply appear frozen with no explanation.
+            if (error instanceof UnauthorizedError) {
+              stopAutoRefresh();
+              showAlert(`${error.message} Auto refresh was stopped.`);
+              return;
+            }
+            console.warn(error);
+          });
+        }, 3000);
       }
 
-      document
-        .getElementById("autoRefresh")
-        .addEventListener("change", setupAutoRefresh);
+      /* ------------------------------------------------------------------ */
+      /* Wiring                                                             */
+      /* ------------------------------------------------------------------ */
 
-      window.onload = async () => {
-        await refreshAll().catch((error) => {
-          showGlobalAlert(`Initial load error: ${error.message}`);
+      document
+        .getElementById("btnUpload")
+        .addEventListener("click", uploadFile);
+      document.getElementById("btnPaste").addEventListener("click", pasteSpec);
+      document.getElementById("btnClear").addEventListener("click", clearSpec);
+      document
+        .getElementById("btnSaveBaseUrl")
+        .addEventListener("click", saveBaseUrl);
+      document
+        .getElementById("btnRefreshLogs")
+        .addEventListener("click", () => run(() => refreshLogs()));
+      document
+        .getElementById("btnClearLogs")
+        .addEventListener("click", clearLogs);
+      document
+        .getElementById("btnDebugCall")
+        .addEventListener("click", debugCallTool);
+      el.btnCancelCall.addEventListener("click", cancelDebugCall);
+      el.autoRefresh.addEventListener("change", setupAutoRefresh);
+
+      el.baseUrl.addEventListener("input", () => {
+        el.baseUrl.dataset.dirty = "1";
+      });
+
+      el.apiKey.addEventListener("change", () => {
+        const value = el.apiKey.value.trim();
+        // sessionStorage rather than localStorage: the credential dies with the tab
+        // instead of persisting to disk.
+        try {
+          if (value) sessionStorage.setItem(API_KEY_STORAGE, value);
+          else sessionStorage.removeItem(API_KEY_STORAGE);
+        } catch {
+          // Storage may be unavailable in private modes; the field still works.
+        }
+        run(async () => {
+          await refreshAll();
+          setupAutoRefresh();
         });
-        setupAutoRefresh();
-      };
+      });
+
+      // Event delegation instead of inline onclick handlers: the service id is
+      // interpolated into markup, and relying on encodeURIComponent to neutralise
+      // quotes is an accident rather than a defence.
+      el.serviceList.addEventListener("click", (event) => {
+        const button = event.target.closest("button[data-action]");
+        if (!button || button.disabled) return;
+        const { action, id } = button.dataset;
+        if (!id) return;
+        if (action === "start") void startService(id);
+        if (action === "stop") void stopService(id);
+      });
+
+      window.addEventListener("beforeunload", () => {
+        refreshController?.abort();
+        debugController?.abort();
+      });
+
+      window.addEventListener("load", async () => {
+        try {
+          const stored = sessionStorage.getItem(API_KEY_STORAGE);
+          if (stored) el.apiKey.value = stored;
+        } catch {
+          // Ignore: an unreadable store just means the field starts empty.
+        }
+
+        try {
+          await refreshAll();
+          setupAutoRefresh();
+        } catch (error) {
+          if (isAbortError(error)) return;
+          showAlert(`Initial load failed: ${error.message}`);
+          if (error instanceof UnauthorizedError) stopAutoRefresh();
+        }
+      });
     </script>
   </body>
 </html>

@@ -1,4 +1,3 @@
-
 import fs from "node:fs";
 import { load as loadYaml } from "js-yaml";
 
@@ -15,13 +14,17 @@ function parseRaw(rawText: string, isYaml: boolean): unknown {
     try {
       return loadYaml(rawText);
     } catch (error) {
-      throw new Error(`Failed to parse YAML: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to parse YAML: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
   try {
     return JSON.parse(rawText);
   } catch (error) {
-    throw new Error(`Failed to parse JSON: ${error instanceof Error ? error.message : String(error)}`);
+    throw new Error(
+      `Failed to parse JSON: ${error instanceof Error ? error.message : String(error)}`,
+    );
   }
 }
 
@@ -30,27 +33,39 @@ async function validateAndDereference(doc: unknown): Promise<Document> {
     throw new Error("The OpenAPI document must be a JSON or YAML object.");
   }
   if (typeof doc.openapi !== "string" || !doc.openapi.trim()) {
-    throw new Error('The OpenAPI document must include a non-empty "openapi" field.');
+    throw new Error(
+      'The OpenAPI document must include a non-empty "openapi" field.',
+    );
   }
   if (!isPlainObject(doc.info)) {
     throw new Error('The OpenAPI document must include a valid "info" object.');
   }
   if (typeof doc.info.title !== "string" || !doc.info.title.trim()) {
-    throw new Error('The OpenAPI document must include a non-empty "info.title" value.');
+    throw new Error(
+      'The OpenAPI document must include a non-empty "info.title" value.',
+    );
   }
   if (typeof doc.info.version !== "string" || !doc.info.version.trim()) {
-    throw new Error('The OpenAPI document must include a non-empty "info.version" value.');
+    throw new Error(
+      'The OpenAPI document must include a non-empty "info.version" value.',
+    );
   }
 
   const validationResult = await validate(doc);
   if (!validationResult.valid) {
-    const errors = (validationResult.errors ?? []).map((item) => typeof item === "string" ? item : JSON.stringify(item)).join("; ");
-    throw new Error(`The OpenAPI document is invalid: ${errors || "Unknown validation error."}`);
+    const errors = (validationResult.errors ?? [])
+      .map((item) => (typeof item === "string" ? item : JSON.stringify(item)))
+      .join("; ");
+    throw new Error(
+      `The OpenAPI document is invalid: ${errors || "Unknown validation error."}`,
+    );
   }
 
   const dereferenced = await dereference(doc);
   if (dereferenced.errors?.length) {
-    const errors = dereferenced.errors.map((item) => typeof item === "string" ? item : JSON.stringify(item)).join("; ");
+    const errors = dereferenced.errors
+      .map((item) => (typeof item === "string" ? item : JSON.stringify(item)))
+      .join("; ");
     throw new Error(`Failed to dereference the OpenAPI document: ${errors}`);
   }
 
@@ -68,7 +83,10 @@ export async function loadOpenApiSpec(filePath: string): Promise<Document> {
   return validateAndDereference(parseRaw(raw, /\.ya?ml$/i.test(filePath)));
 }
 
-export async function parseSpecContent(rawText: string, isYaml: boolean): Promise<Document> {
+export async function parseSpecContent(
+  rawText: string,
+  isYaml: boolean,
+): Promise<Document> {
   if (!rawText.trim()) {
     throw new Error("The OpenAPI content is empty.");
   }

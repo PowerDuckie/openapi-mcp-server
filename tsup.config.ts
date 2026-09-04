@@ -23,7 +23,7 @@ export default defineConfig((options) => ({
 
   // Emit .d.ts / .d.cts alongside the JS bundles.
   dts: {
-    resolve: true,
+    resolve: false,
   },
 
   // Correct extensions per format so that Node's "type": "module"

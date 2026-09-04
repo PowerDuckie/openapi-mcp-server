@@ -5,10 +5,13 @@ export {
   generateToolsDetailed,
   buildBindingIndex,
 } from "./core/tool-generator";
-export type { ToolBinding, GeneratedTool } from "./core/tool-generator";
+export type {
+  ToolBinding,
+  GeneratedTool as GeneratedToolWithBinding,
+} from "./core/tool-generator";
 
-export { generatePrompts } from "./registry/prompt-registry";
-export { generateResources } from "./registry/resource-registry";
+export { generatePrompts, resolvePrompt } from "./registry/prompt-registry";
+export { generateResources, readResource } from "./registry/resource-registry";
 export { executeToolCall } from "./core/http-executor";
 
 export {
@@ -25,7 +28,7 @@ export {
   assertUniqueOperationIds,
 } from "./core/spec-utils";
 export type {
-  OperationEntry, //Module '"./core/spec-utils"' has no exported member 'OperationEntry'.ts(2305)
+  OperationEntry,
   DuplicateOperationId,
 } from "./core/spec-utils";
 
@@ -34,7 +37,7 @@ export { buildRequest } from "./core/request-builder";
 export { buildMcpServer } from "./mcp/create-server";
 export type { SpecProvider, ContextProvider } from "./mcp/create-server";
 export { startStdioServer } from "./mcp/transport-stdio";
-export { attachSseRoutes } from "./mcp/transport-sse";
+export { attachSseRoutes } from "./mcp/transport-http";
 
 export { startAdminServer } from "./server/admin-server";
 export { createAuthMiddleware } from "./server/auth";
