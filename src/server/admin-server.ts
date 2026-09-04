@@ -33,6 +33,7 @@ import type {
   ServerConfig,
   SpecSource,
 } from "../types";
+import { isAbortError, newId } from "@/core/global-utils";
 
 const MODULE_DIR = path.dirname(fileURLToPath(import.meta.url));
 
@@ -966,12 +967,16 @@ export async function startAdminServer(
   /* ---------------------------------------------------------------------- */
 
   app.post("/api/debug/call-tool", auth, async (request, response) => {
+    // The only genuine precondition: the binding index and the upstream base URL
+    // both come from the document.
+    //
+    // Deliberately NOT gated on isActive(): this endpoint bypasses every MCP
+    // transport and calls the executor directly, so a stopped service is
+    // irrelevant here. Gating on it made the debugger unusable in exactly the
+    // situation an operator needs it most — verifying upstream reachability while
+    // the service refuses to come up.
     if (!state.spec) {
       response.status(409).json({ error: "No specification is loaded." });
-      return;
-    }
-    if (!isActive()) {
-      response.status(409).json({ error: "The MCP service is not running." });
       return;
     }
 
@@ -998,13 +1003,36 @@ export async function startAdminServer(
       return;
     }
 
-    // The browser aborting its fetch only tears down this socket. Without
-    // propagating that to the executor the upstream request runs to completion,
-    // so the web UI's Cancel button had no observable effect and repeated
-    // clicks piled requests onto a slow upstream.
+    // ---------------------------------------------------------------------
+    // Cancellation wiring.
+    //
+    // This MUST bind to the response, not the request. IncomingMessage is a
+    // readable stream, so its "close" event fires as soon as the body has been
+    // fully consumed — which for any POST is one tick after the JSON body parser
+    // runs. Binding there aborted every single call a tick after axios dispatched
+    // it, producing a phantom 499 and "The tool call was cancelled by the client"
+    // for calls nobody had cancelled. The pre-flight `signal.aborted` guard inside
+    // the executor did not catch it because the abort landed one tick later.
+    //
+    // ServerResponse "close" fires both on socket loss and on normal completion,
+    // so writableEnded is what distinguishes a real disconnect from success.
+    // ---------------------------------------------------------------------
     const controller = new AbortController();
-    const onClientGone = (): void => controller.abort();
-    request.on("close", onClientGone);
+    const raw = response as unknown as {
+      writableEnded: boolean;
+      destroyed: boolean;
+      on(event: string, listener: () => void): void;
+      off(event: string, listener: () => void): void;
+    };
+
+    const onClientGone = (): void => {
+      if (!raw.writableEnded) {
+        controller.abort(
+          new DOMException("Client disconnected.", "AbortError"),
+        );
+      }
+    };
+    raw.on("close", onClientGone);
 
     try {
       const result = await executeToolCall(
@@ -1015,11 +1043,11 @@ export async function startAdminServer(
           ...contextProvider(),
           signal: controller.signal,
           onLog(entry) {
-            // Merge rather than replace the executor's meta: it carries the
-            // built query string, retry count and serialisation decisions, which
-            // is precisely what a debug call needs to show. A debug call also
-            // travels over no MCP transport, so the protocol hint is cleared to
-            // avoid misattributing it in the log viewer.
+            // Merge rather than replace the executor's meta: it carries the built
+            // query string, retry count and serialisation decisions, which is
+            // precisely what a debug call needs to show. A debug call travels over
+            // no MCP transport, so the protocol hint is cleared to avoid
+            // misattributing it in the log viewer.
             addLog({
               ...entry,
               protocol: undefined,
@@ -1028,16 +1056,53 @@ export async function startAdminServer(
           },
         },
       );
-      response.json({ ok: true, result });
+
+      response.json({
+        ok: true,
+        // Surfaced as data rather than enforced as a gate, so the operator knows
+        // the result came from a direct upstream call while the service was down.
+        serviceRunning: isActive(),
+        result,
+      });
     } catch (error) {
-      if (controller.signal.aborted) {
-        // The client is already gone; writing a body would throw.
-        if (!response.headersSent) response.status(499).end();
+      const aborted = isAbortError(error);
+
+      // A genuinely departed client: there is no socket left to answer on, and a
+      // status code only serves a listener that is still there. Log and let the
+      // request die. No 499 — that nginx-private code was being emitted for
+      // non-cancellations and sent us hunting for a phantom.
+      if (aborted && raw.destroyed) {
+        addLog({
+          id: newId(),
+          at: new Date().toISOString(),
+          direction: "response",
+          toolName: toolName.trim(),
+          success: false,
+          error: "The client disconnected before the upstream call completed.",
+          meta: { debug: true, cancelled: true },
+        });
         return;
       }
-      response.status(400).json({ error: toMessage(error) });
+
+      // An AbortError while the socket is still alive came from somewhere else —
+      // an internal timeout, or a signal merged in by the executor. Reporting that
+      // as a cancellation would be a lie.
+      if (aborted) {
+        if (!response.headersSent) {
+          response.status(504).json({
+            error: "The upstream call was aborted before it completed.",
+          });
+        }
+        return;
+      }
+
+      if (!response.headersSent) {
+        response.status(400).json({ error: toMessage(error) });
+      }
     } finally {
-      request.off("close", onClientGone);
+      // Without this every request leaves a closure attached to the response, and
+      // Node starts emitting MaxListenersExceededWarning at eleven.
+      raw.off("close", onClientGone);
     }
   });
 

@@ -5,6 +5,7 @@ import { buildRequest } from "./request-builder";
 import { getBindingIndex } from "./tool-generator";
 import { findOperationById } from "./spec-utils";
 import type { ExecutionContext, LoggedQuery, RequestLogEntry } from "../types";
+import { newId } from "./global-utils";
 
 const DEFAULT_TIMEOUT_MS = 30_000;
 const MIN_TIMEOUT_MS = 1_000;
@@ -77,19 +78,55 @@ function groupQuery(params: URLSearchParams): LoggedQuery {
   return grouped;
 }
 
-function classifyFailure(error: AxiosError): FailureKind {
+/**
+ * Maps an axios failure onto an actionable category.
+ *
+ * `callerAborted` is not optional sugar. When `timeout` and `signal` are both
+ * supplied, axios surfaces a timeout as ECONNABORTED and a signal abort as
+ * ERR_CANCELED — but older versions and some adapters report a timeout as
+ * ERR_CANCELED too. Without consulting the caller's own signal, a genuine
+ * upstream timeout gets reported as "cancelled by the client", which is the
+ * exact false signal that cost us an afternoon.
+ */
+export function classifyFailure(
+  error: AxiosError,
+  callerAborted = false,
+): FailureKind {
   const code = error.code ?? "";
-  if (code === "ERR_CANCELED") return "canceled";
-  // The node adapter reports timeouts under either code depending on whether
-  // the deadline fired during connect or while waiting for the response.
-  if (code === "ECONNABORTED" || code === "ETIMEDOUT") return "timeout";
+  const name = error.name ?? "";
+  const message = error.message ?? "";
+
+  if (code === "ETIMEDOUT" || /timeout/i.test(message)) return "timeout";
+
+  if (
+    code === "ERR_CANCELED" ||
+    code === "ECONNABORTED" ||
+    name === "CanceledError" ||
+    name === "AbortError"
+  ) {
+    // Only the caller's signal can distinguish the two here.
+    return callerAborted ? "canceled" : "timeout";
+  }
+
   if (code === "ENOTFOUND" || code === "EAI_AGAIN") return "dns";
-  if (code === "ECONNREFUSED" || code === "ECONNRESET") {
+  if (
+    code === "ECONNREFUSED" ||
+    code === "ECONNRESET" ||
+    code === "EHOSTUNREACH"
+  ) {
     return "connection-refused";
   }
-  if (code.startsWith("ERR_TLS") || code === "CERT_HAS_EXPIRED") return "tls";
-  if (code === "ERR_FR_MAX_BODY_LENGTH_EXCEEDED") return "payload-too-large";
-  if (code === "ERR_BAD_RESPONSE" && /maxContentLength/i.test(error.message)) {
+  if (
+    code.startsWith("ERR_TLS") ||
+    code === "CERT_HAS_EXPIRED" ||
+    code === "DEPTH_ZERO_SELF_SIGNED_CERT"
+  ) {
+    return "tls";
+  }
+  if (
+    code === "ERR_FR_MAX_BODY_LENGTH_EXCEEDED" ||
+    (code === "ERR_BAD_RESPONSE" && /maxContentLength/i.test(message))
+  ) {
     return "payload-too-large";
   }
   return "unknown";
@@ -196,14 +233,6 @@ function emitLog(
     onLog?.(entry);
   } catch {
     // Logging must never break user traffic.
-  }
-}
-
-function newId(): string {
-  try {
-    return randomUUID();
-  } catch {
-    return `id_${Date.now()}_${Math.random().toString(16).slice(2)}`;
   }
 }
 
@@ -387,8 +416,14 @@ export async function executeToolCall(
   );
 
   // Fail fast on an already-cancelled call rather than opening a socket.
+  //
+  // Thrown as an AbortError so callers can branch on `name` instead of matching
+  // the message text, which silently breaks the moment the wording changes.
   if (context.signal?.aborted) {
-    throw new Error("The tool call was cancelled before it was dispatched.");
+    throw new DOMException(
+      "The tool call was cancelled before it was dispatched.",
+      "AbortError",
+    );
   }
 
   const built = buildRequest(
@@ -564,7 +599,9 @@ export async function executeToolCall(
   } catch (error) {
     const err = error as AxiosError;
     const durationMs = Date.now() - startedAt;
-    const kind = classifyFailure(err);
+    // The caller's own signal is the only thing that can prove a cancellation
+    // was requested; axios reports a timeout with an overlapping code.
+    const kind = classifyFailure(err, context.signal?.aborted === true);
 
     // Distinct messages matter: "failed" tells the model nothing, while
     // "timed out" or "cancelled" tells it whether retrying is sensible.
@@ -604,6 +641,12 @@ export async function executeToolCall(
       meta: { failureKind: kind, code: err.code },
     });
 
-    throw new Error(message);
+    // A bare `new Error(message)` erased both the cause and the failure kind,
+    // leaving callers to string-match the message to decide between "the client
+    // hung up" (nothing to report) and "the upstream timed out" (a real 504).
+    const wrapped = new Error(message, { cause: err });
+    if (kind === "canceled") wrapped.name = "AbortError";
+    (wrapped as Error & { failureKind?: FailureKind }).failureKind = kind;
+    throw wrapped;
   }
 }

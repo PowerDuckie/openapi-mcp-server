@@ -44,7 +44,12 @@ const PATH_ITEM_METADATA_KEYS: ReadonlySet<string> = new Set([
 ]);
 
 /** Parameter locations this library can map onto an HTTP request. */
-export const PARAMETER_LOCATIONS = ["path", "query", "header", "cookie"] as const;
+export const PARAMETER_LOCATIONS = [
+  "path",
+  "query",
+  "header",
+  "cookie",
+] as const;
 
 const PARAMETER_LOCATION_SET: ReadonlySet<string> = new Set<string>(
   PARAMETER_LOCATIONS,
@@ -55,7 +60,9 @@ const PARAMETER_LOCATION_SET: ReadonlySet<string> = new Set<string>(
  * arguments. They are recognized explicitly so the operator gets a precise
  * warning instead of a silently dropped parameter.
  */
-const KNOWN_UNSUPPORTED_LOCATIONS: ReadonlySet<string> = new Set(["querystring"]);
+const KNOWN_UNSUPPORTED_LOCATIONS: ReadonlySet<string> = new Set([
+  "querystring",
+]);
 
 /**
  * Header names that must never become tool arguments: they are controlled by
@@ -420,8 +427,10 @@ export function synthesizeOperationId(
     .filter(Boolean);
 
   const safeMethod =
-    method.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "") ||
-    "call";
+    method
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^_+|_+$/g, "") || "call";
 
   const base = [safeMethod, ...segments].join("_");
   const cleaned = base.replace(/_{2,}/g, "_").replace(/^_+|_+$/g, "");
@@ -483,7 +492,7 @@ export function* iterateOperations(
     report(issues, {
       path: "",
       code: "invalid-paths-object",
-      message: "The document's \"paths\" field is not an object.",
+      message: 'The document\'s "paths" field is not an object.',
     });
     return;
   }
@@ -498,7 +507,7 @@ export function* iterateOperations(
       report(issues, {
         path: pathTemplate,
         code: "invalid-path-template",
-        message: "Path templates must start with \"/\"; entry was skipped.",
+        message: 'Path templates must start with "/"; entry was skipped.',
       });
       continue;
     }
@@ -522,8 +531,11 @@ export function* iterateOperations(
 
     const pathItem = rawPathItem as PathItemObject;
 
-    const candidates: Array<{ key: string; value: unknown; standard: boolean }> =
-      [];
+    const candidates: Array<{
+      key: string;
+      value: unknown;
+      standard: boolean;
+    }> = [];
 
     for (const [key, value] of Object.entries(rawPathItem)) {
       if (key.startsWith("x-")) continue;
@@ -555,7 +567,8 @@ export function* iterateOperations(
           path: pathTemplate,
           method,
           code: "unresolved-ref",
-          message: "Operation still contains an unresolved $ref and was skipped.",
+          message:
+            "Operation still contains an unresolved $ref and was skipped.",
         });
         continue;
       }
@@ -716,7 +729,9 @@ export function findOperationById(
   if (!target) return null;
 
   const index = getOperationIndex(spec);
-  return index.byOperationId.get(target) ?? index.byDeclaredId.get(target) ?? null;
+  return (
+    index.byOperationId.get(target) ?? index.byDeclaredId.get(target) ?? null
+  );
 }
 
 /** Describes one operationId claimed by more than one operation. */
