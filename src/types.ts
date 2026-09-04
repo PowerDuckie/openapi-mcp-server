@@ -138,6 +138,7 @@ export interface ServerConfig {
   stateFilePath?: string | undefined;
   /** Allowed CORS origins. Empty or omitted disables cross-origin access. */
   allowedOrigins?: string[] | undefined;
+  allowedHosts?: string[];
   /** Maximum number of in-memory log entries retained. */
   maxLogEntries?: number | undefined;
   /** Redact sensitive header values before logging. Defaults to true. */
@@ -255,9 +256,11 @@ export interface AdminStatus {
   issues: string[];
   lastUpdatedAt: string;
   /** Whether an API key is required to reach the admin API. */
-  authRequired?: boolean | undefined;
   /** Process uptime in seconds. */
   uptimeSeconds?: number | undefined;
+  pendingSessions: number;
+  persistEnabled: boolean;
+  authRequired: boolean;
   /** Library version reported to clients. */
   serverVersion?: string | undefined;
 }
