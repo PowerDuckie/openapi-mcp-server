@@ -1,0 +1,161 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenAPI MCP Console</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #0b1020; color: #e7ecf5; }
+    .wrap { max-width: 1280px; margin: 0 auto; padding: 24px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .triple { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    .card { background: #141b2d; border: 1px solid #27314f; border-radius: 12px; padding: 16px; }
+    h1, h2, h3 { margin-top: 0; }
+    textarea, input, pre { width: 100%; box-sizing: border-box; border-radius: 8px; border: 1px solid #33415c; background: #0d1323; color: #e7ecf5; padding: 10px; }
+    textarea { min-height: 180px; }
+    button { background: #3b82f6; color: white; border: none; border-radius: 8px; padding: 10px 14px; cursor: pointer; margin-right: 8px; }
+    button.secondary { background: #334155; }
+    .muted { color: #9fb0d0; font-size: 12px; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+    .pill { display: inline-block; padding: 4px 8px; border-radius: 999px; background: #1d4ed8; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>OpenAPI MCP Console</h1>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Connection</h2>
+        <input id="apiKey" placeholder="x-api-key (optional)" />
+        <p class="muted">If admin authentication is enabled, every request must include the same API key.</p>
+      </div>
+
+      <div class="card">
+        <h2>MCP Debug</h2>
+        <div class="row"><span class="pill">HTTP + SSE</span><code>/mcp</code></div>
+        <div class="row" title="STDIO transport is not available in browsers. Use a desktop MCP client or CLI runtime instead."><span class="pill">STDIO</span><span class="muted">Hover for browser limitation note.</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Load OpenAPI Document</h2>
+      <div class="row">
+        <input type="file" id="fileInput" accept=".json,.yaml,.yml" />
+        <button onclick="uploadFile()">Upload File</button>
+      </div>
+      <textarea id="content" placeholder="Paste JSON or YAML here"></textarea>
+      <div class="row">
+        <label><input id="isYaml" type="checkbox" /> YAML</label>
+        <button onclick="pasteSpec()">Load Text</button>
+        <button class="secondary" onclick="clearSpec()">Clear</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Status</h2>
+      <pre id="status"></pre>
+    </div>
+
+    <div class="triple">
+      <div class="card">
+        <h3>Tools</h3>
+        <pre id="tools"></pre>
+      </div>
+      <div class="card">
+        <h3>Prompts</h3>
+        <pre id="prompts"></pre>
+      </div>
+      <div class="card">
+        <h3>Resources</h3>
+        <pre id="resources"></pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Managed Services</h2>
+      <pre id="services"></pre>
+      <div class="row">
+        <input id="serviceId" placeholder="service id" />
+        <button onclick="startService()">Start</button>
+        <button class="secondary" onclick="stopService()">Stop</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function headers(extra = {}) {
+      const apiKey = document.getElementById("apiKey").value.trim();
+      const merged = { ...extra };
+      if (apiKey) merged["x-api-key"] = apiKey;
+      return merged;
+    }
+
+    async function request(url, options = {}) {
+      const response = await fetch(url, options);
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`);
+      return body;
+    }
+
+    async function refreshAll() {
+      const [status, tools, prompts, resources, services] = await Promise.all([
+        request("/api/status", { headers: headers() }),
+        request("/api/tools", { headers: headers() }),
+        request("/api/prompts", { headers: headers() }),
+        request("/api/resources", { headers: headers() }),
+        request("/api/servers", { headers: headers() }),
+      ]);
+      document.getElementById("status").textContent = JSON.stringify(status, null, 2);
+      document.getElementById("tools").textContent = JSON.stringify(tools, null, 2);
+      document.getElementById("prompts").textContent = JSON.stringify(prompts, null, 2);
+      document.getElementById("resources").textContent = JSON.stringify(resources, null, 2);
+      document.getElementById("services").textContent = JSON.stringify(services, null, 2);
+    }
+
+    async function uploadFile() {
+      const file = document.getElementById("fileInput").files[0];
+      if (!file) return alert("Select a file first.");
+      const form = new FormData();
+      form.append("file", file);
+      await request("/api/spec/upload", { method: "POST", body: form, headers: headers() });
+      await refreshAll();
+    }
+
+    async function pasteSpec() {
+      const content = document.getElementById("content").value;
+      const isYaml = document.getElementById("isYaml").checked;
+      await request("/api/spec/paste", {
+        method: "POST",
+        headers: headers({ "Content-Type": "application/json" }),
+        body: JSON.stringify({ content, isYaml }),
+      });
+      await refreshAll();
+    }
+
+    async function clearSpec() {
+      await request("/api/spec/clear", { method: "POST", headers: headers() });
+      await refreshAll();
+    }
+
+    async function startService() {
+      const id = document.getElementById("serviceId").value.trim();
+      if (!id) return alert("Enter a service id.");
+      await request(`/api/servers/${encodeURIComponent(id)}/start`, { method: "POST", headers: headers() });
+      await refreshAll();
+    }
+
+    async function stopService() {
+      const id = document.getElementById("serviceId").value.trim();
+      if (!id) return alert("Enter a service id.");
+      await request(`/api/servers/${encodeURIComponent(id)}/stop`, { method: "POST", headers: headers() });
+      await refreshAll();
+    }
+
+    refreshAll().catch((error) => {
+      document.getElementById("status").textContent = error.message;
+    });
+  </script>
+</body>
+</html>

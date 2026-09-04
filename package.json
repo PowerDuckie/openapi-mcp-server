@@ -1,0 +1,62 @@
+{
+  "name": "@powerduck/openapi-mcp-server",
+  "version": "1.0.0",
+  "description": "Production-oriented OpenAPI to MCP server library with Tools, Prompts, Resources, Web UI, and admin runtime.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./server": {
+      "types": "./dist/server/admin-server.d.ts",
+      "import": "./dist/server/admin-server.mjs",
+      "require": "./dist/server/admin-server.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "openapi-mcp": "./dist/cli.mjs"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20.11"
+  },
+  "scripts": {
+    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
+    "typecheck": "tsc -p tsconfig.json",
+    "bundle": "tsup",
+    "copy:webui": "node scripts/copy-webui.mjs",
+    "build": "npm run clean && npm run typecheck && npm run bundle && npm run copy:webui",
+    "dev": "tsx src/cli.ts serve --transport web",
+    "start": "node dist/cli.mjs serve --transport web",
+    "demo": "tsx demo.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "@scalar/openapi-parser": "^0.29.0",
+    "@scalar/openapi-types": "^0.9.5",
+    "axios": "^1.20.0",
+    "commander": "^15.0.0",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "js-yaml": "^5.4.1",
+    "multer": "^2.3.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/multer": "^2.2.0",
+    "@types/node": "^22.20.1",
+    "tsup": "^8.5.1",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.3"
+  }
+}
