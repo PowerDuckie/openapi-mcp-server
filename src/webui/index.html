@@ -7,7 +7,6 @@
     <style>
       :root {
         --bg: #07111f;
-        --bg-2: #0d1726;
         --panel: rgba(15, 23, 42, 0.82);
         --panel-2: rgba(17, 24, 39, 0.92);
         --border: rgba(148, 163, 184, 0.16);
@@ -19,11 +18,13 @@
         --warn: #f59e0b;
         --danger: #ef4444;
         --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+        --sidebar-w: 248px;
       }
 
       * {
         box-sizing: border-box;
       }
+
       html,
       body {
         margin: 0;
@@ -51,67 +52,159 @@
           sans-serif;
       }
 
-      .shell {
-        max-width: 1600px;
-        margin: 0 auto;
-        padding: 28px;
+      /* ---------------- Layout ---------------- */
+
+      .app {
+        display: grid;
+        grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+        min-height: 100vh;
       }
 
-      .hero {
-        padding: 28px;
-        border: 1px solid var(--border);
-        background: linear-gradient(
-          135deg,
-          rgba(30, 41, 59, 0.75),
-          rgba(15, 23, 42, 0.95)
-        );
-        border-radius: 24px;
-        box-shadow: var(--shadow);
-        margin-bottom: 20px;
+      .sidebar {
+        border-right: 1px solid var(--border);
+        background: rgba(6, 12, 24, 0.72);
+        backdrop-filter: blur(18px);
+        padding: 22px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow: auto;
       }
 
-      .hero h1 {
-        margin: 0 0 8px;
-        font-size: 34px;
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 6px;
+      }
+
+      .brand .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, var(--brand), var(--brand-2));
+        box-shadow: 0 0 14px rgba(96, 165, 250, 0.7);
+        flex: none;
+      }
+
+      .brand strong {
+        font-size: 15px;
         letter-spacing: 0.2px;
       }
-      .hero p {
+
+      .nav {
+        display: grid;
+        gap: 6px;
+      }
+
+      .nav button {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        width: 100%;
+        text-align: left;
+        background: transparent;
+        border: 1px solid transparent;
+        color: var(--muted);
+        padding: 11px 12px;
+        border-radius: 12px;
+        font-size: 14px;
+      }
+
+      .nav button:hover:not(:disabled) {
+        background: rgba(51, 65, 85, 0.4);
+        color: var(--text);
+        transform: none;
+      }
+
+      .nav button[aria-current="page"] {
+        background: linear-gradient(
+          135deg,
+          rgba(96, 165, 250, 0.22),
+          rgba(139, 92, 246, 0.18)
+        );
+        border-color: rgba(96, 165, 250, 0.32);
+        color: var(--text);
+        font-weight: 600;
+      }
+
+      .nav .count {
+        font-size: 11px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        padding: 2px 7px;
+        border-radius: 999px;
+        background: rgba(148, 163, 184, 0.16);
+        color: var(--muted);
+      }
+
+      .sidebar-foot {
+        margin-top: auto;
+        display: grid;
+        gap: 8px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .main {
+        padding: 26px 30px 60px;
+        max-width: 1560px;
+      }
+
+      .page-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+      }
+
+      .page-head h1 {
+        margin: 0 0 6px;
+        font-size: 26px;
+      }
+      .page-head p {
         margin: 0;
         color: var(--muted);
-        max-width: 980px;
+        max-width: 860px;
+        font-size: 14px;
       }
 
-      .toolbar {
-        margin-top: 18px;
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-        align-items: center;
+      .view {
+        display: none;
       }
-
-      .layout {
-        display: grid;
-        grid-template-columns: 1.2fr 0.8fr;
-        gap: 20px;
+      .view.active {
+        display: block;
       }
 
       .stack {
         display: grid;
-        gap: 20px;
+        gap: 18px;
         align-content: start;
       }
-
-      .three {
+      .cols-2 {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 18px;
+        align-items: start;
+      }
+      .cols-3 {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 20px;
+        gap: 18px;
       }
+
+      /* ---------------- Primitives ---------------- */
 
       .card {
         border: 1px solid var(--border);
         background: var(--panel);
         backdrop-filter: blur(16px);
-        border-radius: 22px;
+        border-radius: 20px;
         padding: 20px;
         box-shadow: var(--shadow);
       }
@@ -121,6 +214,12 @@
         margin: 0 0 12px;
         font-weight: 700;
       }
+      .card h2 {
+        font-size: 18px;
+      }
+      .card h3 {
+        font-size: 15px;
+      }
 
       .row {
         display: flex;
@@ -128,38 +227,8 @@
         flex-wrap: wrap;
         align-items: center;
       }
-
       .row + .row {
         margin-top: 12px;
-      }
-
-      .metric-grid {
-        display: grid;
-        grid-template-columns: repeat(5, minmax(0, 1fr));
-        gap: 14px;
-      }
-
-      .metric {
-        padding: 16px;
-        border-radius: 18px;
-        background: linear-gradient(
-          180deg,
-          rgba(15, 23, 42, 0.9),
-          rgba(17, 24, 39, 0.65)
-        );
-        border: 1px solid var(--border);
-      }
-
-      .metric .label {
-        color: var(--muted);
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.8px;
-      }
-      .metric .value {
-        margin-top: 8px;
-        font-size: 26px;
-        font-weight: 800;
       }
 
       input,
@@ -176,8 +245,8 @@
         color: var(--text);
         background: rgba(2, 6, 23, 0.75);
         border: 1px solid rgba(148, 163, 184, 0.18);
-        border-radius: 14px;
-        padding: 12px 14px;
+        border-radius: 12px;
+        padding: 11px 13px;
         outline: none;
       }
 
@@ -186,16 +255,17 @@
       select:focus {
         border-color: rgba(96, 165, 250, 0.55);
       }
-
       textarea {
-        min-height: 220px;
+        min-height: 150px;
         resize: vertical;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 13px;
       }
 
       button {
         border: none;
-        border-radius: 14px;
-        padding: 11px 16px;
+        border-radius: 12px;
+        padding: 10px 15px;
         cursor: pointer;
         color: white;
         background: linear-gradient(135deg, var(--brand), var(--brand-2));
@@ -211,28 +281,52 @@
         background: #334155;
       }
       button.ghost {
-        background: rgba(51, 65, 85, 0.55);
+        background: rgba(51, 65, 85, 0.5);
         border: 1px solid var(--border);
       }
       button.danger {
         background: linear-gradient(135deg, #ef4444, #b91c1c);
       }
+      button.success {
+        background: linear-gradient(135deg, #16a34a, #15803d);
+      }
       button:disabled {
-        opacity: 0.5;
+        opacity: 0.45;
         cursor: not-allowed;
         transform: none;
+      }
+
+      .btn-hero {
+        flex: 1 1 220px;
+        min-height: 92px;
+        border-radius: 18px;
+        font-size: 19px;
+        font-weight: 700;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+
+      .btn-hero small {
+        font-size: 12px;
+        font-weight: 500;
+        opacity: 0.85;
       }
 
       .pill {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        padding: 6px 10px;
+        gap: 7px;
+        padding: 5px 10px;
         border-radius: 999px;
-        background: rgba(59, 130, 246, 0.2);
-        border: 1px solid rgba(96, 165, 250, 0.25);
+        background: rgba(59, 130, 246, 0.18);
+        border: 1px solid rgba(96, 165, 250, 0.24);
         font-size: 12px;
+        white-space: nowrap;
       }
+
       .pill.success {
         color: #bbf7d0;
         background: rgba(34, 197, 94, 0.18);
@@ -248,6 +342,11 @@
         background: rgba(239, 68, 68, 0.18);
         border-color: rgba(239, 68, 68, 0.26);
       }
+      .pill.plain {
+        background: rgba(148, 163, 184, 0.12);
+        border-color: var(--border);
+        color: var(--muted);
+      }
 
       .muted {
         color: var(--muted);
@@ -255,42 +354,65 @@
       .mono {
         font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
       }
+      .hint {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .hidden {
+        display: none !important;
+      }
 
       .alert {
-        padding: 14px 16px;
-        border-radius: 16px;
+        padding: 12px 14px;
+        border-radius: 14px;
         border: 1px solid transparent;
-        margin-bottom: 20px;
+        font-size: 13px;
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
       }
+
       .alert.danger {
-        background: rgba(127, 29, 29, 0.28);
-        border-color: rgba(239, 68, 68, 0.32);
+        background: rgba(127, 29, 29, 0.3);
+        border-color: rgba(239, 68, 68, 0.34);
       }
       .alert.warn {
-        background: rgba(113, 63, 18, 0.28);
-        border-color: rgba(245, 158, 11, 0.28);
+        background: rgba(113, 63, 18, 0.3);
+        border-color: rgba(245, 158, 11, 0.3);
       }
       .alert.success {
-        background: rgba(20, 83, 45, 0.28);
-        border-color: rgba(34, 197, 94, 0.28);
+        background: rgba(20, 83, 45, 0.3);
+        border-color: rgba(34, 197, 94, 0.3);
+      }
+      .alert.info {
+        background: rgba(30, 58, 138, 0.28);
+        border-color: rgba(96, 165, 250, 0.3);
+      }
+      .alert + * {
+        margin-top: 14px;
       }
 
       .surface {
         border: 1px solid var(--border);
-        background: rgba(2, 6, 23, 0.45);
-        border-radius: 18px;
-        padding: 14px;
+        background: rgba(2, 6, 23, 0.5);
+        border-radius: 14px;
+        padding: 13px;
       }
 
       .scroll {
-        max-height: 360px;
+        max-height: 380px;
         overflow: auto;
       }
-
+      .scroll-lg {
+        max-height: 620px;
+        overflow: auto;
+      }
       pre {
         margin: 0;
         white-space: pre-wrap;
         word-break: break-word;
+        font-size: 12.5px;
+        line-height: 1.55;
       }
 
       .list {
@@ -298,256 +420,725 @@
         gap: 12px;
       }
 
-      .service-item,
-      .tool-item,
-      .log-item {
+      .item {
         border: 1px solid var(--border);
         background: var(--panel-2);
-        border-radius: 18px;
+        border-radius: 16px;
         padding: 14px;
       }
 
-      .split {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 14px;
+      .item.clickable {
+        cursor: pointer;
+      }
+      .item.clickable:hover {
+        border-color: rgba(96, 165, 250, 0.4);
       }
 
-      .hint {
+      .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 13px;
+      }
+
+      .metric {
+        padding: 15px;
+        border-radius: 16px;
+        background: linear-gradient(
+          180deg,
+          rgba(15, 23, 42, 0.9),
+          rgba(17, 24, 39, 0.6)
+        );
+        border: 1px solid var(--border);
+      }
+
+      .metric .label {
+        color: var(--muted);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+      }
+      .metric .value {
+        margin-top: 7px;
+        font-size: 25px;
+        font-weight: 800;
+      }
+
+      .tabs {
+        display: flex;
+        gap: 8px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+      }
+
+      .tabs button {
+        background: transparent;
+        color: var(--muted);
+        border-radius: 10px 10px 0 0;
+        border-bottom: 2px solid transparent;
+        padding: 10px 14px;
+      }
+
+      .tabs button:hover:not(:disabled) {
+        color: var(--text);
+        transform: none;
+      }
+      .tabs button[aria-selected="true"] {
+        color: var(--text);
+        border-bottom-color: var(--brand);
+        font-weight: 600;
+      }
+
+      .switch {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        cursor: pointer;
+        font-size: 13px;
+      }
+
+      .switch input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .switch .track {
+        width: 42px;
+        height: 24px;
+        border-radius: 999px;
+        background: rgba(148, 163, 184, 0.25);
+        border: 1px solid var(--border);
+        position: relative;
+        transition: background 0.15s ease;
+        flex: none;
+      }
+
+      .switch .track::after {
+        content: "";
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        background: #e5eefc;
+        transition: transform 0.15s ease;
+      }
+
+      .switch input:checked + .track {
+        background: linear-gradient(135deg, var(--brand), var(--brand-2));
+      }
+      .switch input:checked + .track::after {
+        transform: translateX(18px);
+      }
+      .switch input:focus-visible + .track {
+        border-color: var(--brand);
+      }
+
+      .field {
+        display: grid;
+        gap: 6px;
+      }
+      .field > label {
         font-size: 12px;
         color: var(--muted);
       }
-
-      .hidden {
-        display: none;
+      .field .req {
+        color: #fca5a5;
+      }
+      .form-grid {
+        display: grid;
+        gap: 13px;
       }
 
-      @media (max-width: 1200px) {
-        .layout,
-        .three,
-        .metric-grid,
-        .split {
+      .kv {
+        display: grid;
+        grid-template-columns: 130px minmax(0, 1fr);
+        gap: 6px 12px;
+        font-size: 13px;
+      }
+      .kv dt {
+        color: var(--muted);
+      }
+      .kv dd {
+        margin: 0;
+        word-break: break-word;
+      }
+
+      .live-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: var(--success);
+        box-shadow: 0 0 10px var(--success);
+        animation: pulse 1.6s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+      }
+
+      .empty {
+        padding: 26px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      @media (max-width: 1180px) {
+        .cols-2,
+        .cols-3,
+        .metric-grid {
           grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 860px) {
+        .app {
+          grid-template-columns: 1fr;
+        }
+        .sidebar {
+          position: static;
+          height: auto;
+          border-right: none;
+          border-bottom: 1px solid var(--border);
+        }
+        .nav {
+          grid-template-columns: repeat(2, 1fr);
+          display: grid;
+        }
+        .main {
+          padding: 20px 16px 50px;
         }
       }
     </style>
   </head>
   <body>
-    <div class="shell">
-      <section class="hero">
-        <h1>OpenAPI MCP Console</h1>
-        <p>
-          Load an OpenAPI 3.2 document, inspect generated MCP tools, prompts,
-          and resources, manage the active service, test tool execution over
-          HTTP, and review runtime request logs.
-        </p>
-        <div class="toolbar">
-          <span
-            class="pill"
-            title="Streamable HTTP transport, preferred for new clients."
-            >Streamable HTTP: <span class="mono">/mcp</span></span
-          >
-          <span
-            class="pill"
-            title="Legacy HTTP+SSE transport, kept for older clients."
-            >Legacy SSE: <span class="mono">/sse</span></span
-          >
-          <span
-            class="pill danger"
-            title="STDIO is available through the CLI only. Browsers cannot open STDIO transports."
-            >STDIO CLI Only</span
-          >
-          <label class="pill"
-            ><input
-              id="autoRefresh"
-              type="checkbox"
-              checked
-              style="width: auto"
-            />
-            Auto refresh every 3 seconds</label
-          >
+    <div class="app">
+      <!-- ============================ Sidebar ============================ -->
+      <aside class="sidebar">
+        <div class="brand">
+          <span class="dot"></span>
+          <strong>OpenAPI MCP</strong>
         </div>
-      </section>
 
-      <div id="globalAlert"></div>
+        <nav class="nav" id="nav">
+          <button type="button" data-view="dashboard" aria-current="page">
+            <span>Dashboard</span>
+            <span class="count" id="navStatus">–</span>
+          </button>
+          <button type="button" data-view="call">
+            <span>Call Tool</span>
+          </button>
+          <button type="button" data-view="logs">
+            <span>Logs</span>
+            <span class="count" id="navLogs">0</span>
+          </button>
+          <button type="button" data-view="catalog">
+            <span>Catalog</span>
+            <span class="count" id="navCatalog">0</span>
+          </button>
+          <button type="button" data-view="settings">
+            <span>Settings</span>
+          </button>
+        </nav>
 
-      <section class="card" style="margin-bottom: 20px">
-        <div class="metric-grid">
-          <div class="metric">
-            <div class="label">Spec Loaded</div>
-            <div class="value" id="metricSpecLoaded">No</div>
+        <div class="sidebar-foot">
+          <div class="row" style="gap: 6px">
+            <span class="pill plain mono">/mcp</span>
+            <span class="pill plain mono">/sse</span>
           </div>
-          <div class="metric">
-            <div class="label">Active Service</div>
-            <div class="value" id="metricActive">No</div>
-          </div>
-          <div class="metric">
-            <div class="label">Tools</div>
-            <div class="value" id="metricTools">0</div>
-          </div>
-          <div class="metric">
-            <div class="label">Prompts</div>
-            <div class="value" id="metricPrompts">0</div>
-          </div>
-          <div class="metric">
-            <div class="label">Resources</div>
-            <div class="value" id="metricResources">0</div>
+          <div class="hint">
+            STDIO transport is reachable from the CLI only — a browser cannot
+            open a STDIO stream.
           </div>
         </div>
-      </section>
+      </aside>
 
-      <div class="layout">
-        <div class="stack">
+      <!-- ============================= Main ============================= -->
+      <main class="main">
+        <!-- Reserved for cross-cutting failures (auth, network) only. -->
+        <div id="globalAlert"></div>
+
+        <!-- ---------------------- View: Dashboard ---------------------- -->
+        <section class="view active" id="view-dashboard">
+          <div class="page-head">
+            <div>
+              <h1>Dashboard</h1>
+              <p>
+                Runtime overview of the loaded document, the generated MCP
+                surface, and the active service.
+              </p>
+            </div>
+            <div class="row">
+              <span class="pill plain" id="dashPollState">idle</span>
+              <button class="ghost" id="btnDashRefresh">Refresh</button>
+            </div>
+          </div>
+
+          <div class="stack">
+            <section class="card">
+              <div class="metric-grid">
+                <div class="metric">
+                  <div class="label">Spec Loaded</div>
+                  <div class="value" id="metricSpecLoaded">–</div>
+                </div>
+                <div class="metric">
+                  <div class="label">Service</div>
+                  <div class="value" id="metricActive">–</div>
+                </div>
+                <div class="metric">
+                  <div class="label">Tools</div>
+                  <div class="value" id="metricTools">0</div>
+                </div>
+                <div class="metric">
+                  <div class="label">Prompts</div>
+                  <div class="value" id="metricPrompts">0</div>
+                </div>
+                <div class="metric">
+                  <div class="label">Resources</div>
+                  <div class="value" id="metricResources">0</div>
+                </div>
+              </div>
+              <div class="row" style="margin-top: 16px" id="statusFlags"></div>
+            </section>
+
+            <section class="card">
+              <h2>Quick Control</h2>
+              <div id="quickAlert"></div>
+              <div class="hint" style="margin-bottom: 12px">
+                Acts on the currently selected service
+                <span class="mono" id="quickTarget">(none)</span>. Starting a
+                service opens its MCP endpoints; stopping it drops every live
+                session.
+              </div>
+              <div class="row">
+                <button class="btn-hero success" id="btnQuickStart">
+                  Start Service
+                  <small>Bring the MCP endpoints online</small>
+                </button>
+                <button class="btn-hero danger" id="btnQuickStop">
+                  Stop Service
+                  <small>Close all sessions immediately</small>
+                </button>
+              </div>
+            </section>
+
+            <div class="cols-2">
+              <section class="card">
+                <h2>Managed Services</h2>
+                <div id="serviceList" class="list"></div>
+              </section>
+
+              <section class="card">
+                <h2>Raw Status</h2>
+                <div class="surface scroll">
+                  <pre id="statusRaw" class="mono"></pre>
+                </div>
+              </section>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------------------- View: Call Tool ---------------------- -->
+        <section class="view" id="view-call">
+          <div class="page-head">
+            <div>
+              <h1>Call Tool</h1>
+              <p>
+                Executes a real upstream request through the active service,
+                credentials included. Not a dry run.
+              </p>
+            </div>
+            <button class="ghost" id="btnReloadTools">Reload Tools</button>
+          </div>
+
+          <div class="cols-2">
+            <section class="card">
+              <h2>Request</h2>
+              <div id="callAlert"></div>
+
+              <div class="field" style="margin-bottom: 14px">
+                <label for="toolSelect">Tool</label>
+                <select id="toolSelect"></select>
+              </div>
+
+              <div
+                id="toolMeta"
+                class="surface hidden"
+                style="margin-bottom: 14px"
+              ></div>
+
+              <div class="tabs" id="argTabs">
+                <button type="button" data-argtab="form" aria-selected="true">
+                  Form
+                </button>
+                <button type="button" data-argtab="json" aria-selected="false">
+                  Raw JSON
+                </button>
+              </div>
+
+              <div id="argPanel-form">
+                <div id="argForm" class="form-grid"></div>
+              </div>
+
+              <div id="argPanel-json" class="hidden">
+                <textarea
+                  id="toolArgs"
+                  spellcheck="false"
+                  placeholder='{ "id": "123" }'
+                ></textarea>
+                <div class="row" style="margin-top: 10px">
+                  <button class="ghost" id="btnFormatJson">Format</button>
+                  <button class="ghost" id="btnFromForm">Fill from Form</button>
+                </div>
+                <div class="hint" style="margin-top: 8px">
+                  Keys and string values must use double quotes. Single quotes
+                  or bare keys are the usual cause of
+                  <span class="mono">Expected ':' after property name</span> —
+                  Format will repair those and tell you what it changed.
+                </div>
+              </div>
+
+              <div class="row" style="margin-top: 16px">
+                <button id="btnDebugCall">Call Tool</button>
+                <button class="secondary" id="btnCancelCall" disabled>
+                  Cancel
+                </button>
+                <span id="callSpinner" class="pill hidden">
+                  <span class="live-dot"></span> running
+                </span>
+              </div>
+            </section>
+
+            <section class="card">
+              <h2>Response</h2>
+              <div
+                id="callResultMeta"
+                class="row"
+                style="margin-bottom: 12px"
+              ></div>
+              <div class="surface scroll-lg">
+                <pre id="debugResult" class="mono muted">
+No call has been made yet.</pre
+                >
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <!-- ------------------------ View: Logs ------------------------ -->
+        <section class="view" id="view-logs">
+          <div class="page-head">
+            <div>
+              <h1>Request Logs</h1>
+              <p>
+                Upstream and protocol traffic recorded by the server, newest
+                first.
+              </p>
+            </div>
+            <div class="row">
+              <label class="switch" for="autoRefresh">
+                <input id="autoRefresh" type="checkbox" checked />
+                <span class="track"></span>
+                <span>Auto refresh</span>
+              </label>
+              <select id="autoRefreshInterval" style="width: auto">
+                <option value="2000">2s</option>
+                <option value="3000" selected>3s</option>
+                <option value="5000">5s</option>
+                <option value="10000">10s</option>
+              </select>
+              <button class="ghost" id="btnRefreshLogs">Refresh</button>
+              <button class="danger" id="btnClearLogs">Clear</button>
+            </div>
+          </div>
+
+          <div id="logsAlert"></div>
+
           <section class="card">
-            <h2>Load OpenAPI Document</h2>
-            <div class="row">
-              <input type="file" id="fileInput" accept=".json,.yaml,.yml" />
-              <button id="btnUpload">Upload File</button>
-            </div>
-            <div class="row">
-              <textarea
-                id="content"
-                placeholder="Paste JSON or YAML here"
-              ></textarea>
-            </div>
-            <div class="row">
-              <label class="pill"
-                ><input id="isYaml" type="checkbox" style="width: auto" /> Force
-                YAML</label
+            <div class="row" style="margin-bottom: 14px">
+              <span class="pill plain" id="logPollState">paused</span>
+              <span class="pill plain"
+                >Entries <span id="logCount">0</span></span
               >
-              <button id="btnPaste">Load Text</button>
-              <button id="btnClear" class="secondary">Clear Spec</button>
-            </div>
-          </section>
-
-          <section class="card">
-            <h2>Runtime Configuration</h2>
-            <div class="row">
               <input
-                id="apiKey"
-                type="password"
-                autocomplete="off"
-                placeholder="API key (optional)"
+                id="logFilter"
+                placeholder="Filter by tool, URL, method or status"
+                style="flex: 1 1 260px; width: auto"
               />
-              <input
-                id="baseUrl"
-                placeholder="Override upstream base URL (optional)"
-              />
-              <button id="btnSaveBaseUrl">Save Base URL</button>
+              <label class="switch" for="logErrorsOnly">
+                <input id="logErrorsOnly" type="checkbox" />
+                <span class="track"></span>
+                <span>Failures only</span>
+              </label>
             </div>
-            <div class="hint">
-              The API key is kept for this browser tab only and is sent as both
-              <span class="mono">Authorization: Bearer</span> and
-              <span class="mono">x-api-key</span>. Use the base URL override
-              when the document's server URL is not routable from this host.
-            </div>
+            <div id="logList" class="list"></div>
           </section>
-
-          <section class="card">
-            <h2>Managed Services</h2>
-            <div id="serviceList" class="list"></div>
-          </section>
-
-          <section class="card">
-            <h2>Request Logs</h2>
-            <div class="row">
-              <button id="btnRefreshLogs" class="ghost">Refresh Logs</button>
-              <button id="btnClearLogs" class="danger">Clear Logs</button>
-            </div>
-            <div id="logList" class="list" style="margin-top: 12px"></div>
-          </section>
-        </div>
-
-        <div class="stack">
-          <section class="card">
-            <h2>Status</h2>
-            <div id="statusFlags" class="row"></div>
-            <div class="surface scroll" style="margin-top: 12px">
-              <pre id="status" class="mono"></pre>
-            </div>
-          </section>
-
-          <section class="card">
-            <h2>MCP Debugger</h2>
-            <div class="row">
-              <select id="toolSelect"></select>
-            </div>
-            <div class="row">
-              <textarea id="toolArgs" placeholder='{"id":"123"}'></textarea>
-            </div>
-            <div class="row">
-              <button id="btnDebugCall">Call Tool</button>
-              <button id="btnCancelCall" class="secondary" disabled>
-                Cancel
-              </button>
-            </div>
-            <div class="hint" style="margin-top: 8px">
-              This sends a real upstream request using the active service
-              context, credentials included.
-            </div>
-            <div class="surface scroll" style="margin-top: 12px">
-              <pre id="debugResult" class="mono"></pre>
-            </div>
-          </section>
-        </div>
-      </div>
-
-      <section class="three" style="margin-top: 20px">
-        <section class="card">
-          <h3>Tools</h3>
-          <div id="toolCatalog" class="list"></div>
         </section>
-        <section class="card">
-          <h3>Prompts</h3>
-          <div class="surface scroll">
-            <pre id="prompts" class="mono"></pre>
+
+        <!-- ----------------------- View: Catalog ----------------------- -->
+        <section class="view" id="view-catalog">
+          <div class="page-head">
+            <div>
+              <h1>Catalog</h1>
+              <p>
+                Everything the server exposes to MCP clients, generated from the
+                loaded document.
+              </p>
+            </div>
+            <button class="ghost" id="btnReloadCatalog">Reload</button>
+          </div>
+
+          <div id="catalogAlert"></div>
+
+          <div class="tabs" id="catalogTabs">
+            <button type="button" data-cat="tools" aria-selected="true">
+              Tools <span class="count" id="tabToolCount">0</span>
+            </button>
+            <button type="button" data-cat="prompts" aria-selected="false">
+              Prompts <span class="count" id="tabPromptCount">0</span>
+            </button>
+            <button type="button" data-cat="resources" aria-selected="false">
+              Resources <span class="count" id="tabResourceCount">0</span>
+            </button>
+          </div>
+
+          <div class="row" style="margin-bottom: 14px">
+            <input
+              id="catalogFilter"
+              placeholder="Filter the current tab"
+              style="flex: 1 1 300px; width: auto"
+            />
+            <label class="switch" for="catalogRaw">
+              <input id="catalogRaw" type="checkbox" />
+              <span class="track"></span>
+              <span>Show raw JSON</span>
+            </label>
+          </div>
+
+          <section class="card" id="catPanel-tools">
+            <div id="toolCatalog" class="list"></div>
+          </section>
+
+          <section class="card hidden" id="catPanel-prompts">
+            <div id="promptCatalog" class="list"></div>
+          </section>
+
+          <section class="card hidden" id="catPanel-resources">
+            <div id="resourceCatalog" class="list"></div>
+          </section>
+
+          <section
+            class="card hidden"
+            id="catPanel-raw"
+            style="margin-top: 18px"
+          >
+            <h3>Raw payload</h3>
+            <div class="surface scroll-lg">
+              <pre id="catalogRawOut" class="mono"></pre>
+            </div>
+          </section>
+        </section>
+
+        <!-- ---------------------- View: Settings ---------------------- -->
+        <section class="view" id="view-settings">
+          <div class="page-head">
+            <div>
+              <h1>Settings</h1>
+              <p>
+                Load an OpenAPI document and configure how this console talks to
+                the admin API and the upstream host.
+              </p>
+            </div>
+          </div>
+
+          <div id="settingsAlert"></div>
+
+          <div class="cols-2">
+            <section class="card">
+              <h2>Load OpenAPI Document</h2>
+
+              <div class="field" style="margin-bottom: 14px">
+                <label for="fileInput">From file</label>
+                <div class="row">
+                  <input type="file" id="fileInput" accept=".json,.yaml,.yml" />
+                  <button id="btnUpload">Upload</button>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="content">From text</label>
+                <textarea
+                  id="content"
+                  spellcheck="false"
+                  placeholder="Paste JSON or YAML here"
+                ></textarea>
+              </div>
+
+              <div class="row" style="margin-top: 12px">
+                <label class="switch" for="isYaml">
+                  <input id="isYaml" type="checkbox" />
+                  <span class="track"></span>
+                  <span>Force YAML</span>
+                </label>
+                <button id="btnPaste">Load Text</button>
+                <button class="secondary" id="btnClearSpec">Clear Spec</button>
+              </div>
+            </section>
+
+            <div class="stack">
+              <section class="card">
+                <h2>Admin Credential</h2>
+                <div class="field">
+                  <label for="apiKey">API key</label>
+                  <input
+                    id="apiKey"
+                    type="password"
+                    autocomplete="off"
+                    placeholder="Leave empty if the server requires no auth"
+                  />
+                </div>
+                <div class="hint" style="margin-top: 10px">
+                  Held in this browser tab only (never written to disk) and sent
+                  as both <span class="mono">Authorization: Bearer</span> and
+                  <span class="mono">x-api-key</span>, because different clients
+                  support different header conventions.
+                </div>
+                <div class="row" style="margin-top: 12px">
+                  <button class="ghost" id="btnApplyKey">
+                    Apply &amp; Test
+                  </button>
+                  <button class="secondary" id="btnForgetKey">
+                    Forget Key
+                  </button>
+                </div>
+              </section>
+
+              <section class="card">
+                <h2>Upstream Base URL</h2>
+                <div class="field">
+                  <label for="baseUrl">Override</label>
+                  <input
+                    id="baseUrl"
+                    placeholder="https://api.example.com/v1"
+                  />
+                </div>
+                <div class="hint" style="margin-top: 10px">
+                  Use this when the server URL declared in the document is not
+                  routable from the machine running this process.
+                </div>
+                <div class="row" style="margin-top: 12px">
+                  <button id="btnSaveBaseUrl">Save</button>
+                  <button class="secondary" id="btnResetBaseUrl">
+                    Remove Override
+                  </button>
+                </div>
+              </section>
+            </div>
           </div>
         </section>
-        <section class="card">
-          <h3>Resources</h3>
-          <div class="surface scroll">
-            <pre id="resources" class="mono"></pre>
-          </div>
-        </section>
-      </section>
+      </main>
     </div>
 
     <script>
       "use strict";
 
+      /* ==================================================================
+       * Constants & state
+       * ================================================================== */
+
       const API_KEY_STORAGE = "openapi-mcp-console.apiKey";
+      const DEFAULT_VIEW = "dashboard";
 
-      let autoRefreshTimer = null;
-      let latestToolsPayload = { tools: [], bindings: [], issues: [] };
-
-      /* ------------------------------------------------------------------ */
-      /* Element handles                                                    */
-      /* ------------------------------------------------------------------ */
-
-      const el = {
-        alert: document.getElementById("globalAlert"),
-        apiKey: document.getElementById("apiKey"),
-        baseUrl: document.getElementById("baseUrl"),
-        autoRefresh: document.getElementById("autoRefresh"),
-        fileInput: document.getElementById("fileInput"),
-        content: document.getElementById("content"),
-        isYaml: document.getElementById("isYaml"),
-        status: document.getElementById("status"),
-        statusFlags: document.getElementById("statusFlags"),
-        prompts: document.getElementById("prompts"),
-        resources: document.getElementById("resources"),
-        serviceList: document.getElementById("serviceList"),
-        logList: document.getElementById("logList"),
-        toolCatalog: document.getElementById("toolCatalog"),
-        toolSelect: document.getElementById("toolSelect"),
-        toolArgs: document.getElementById("toolArgs"),
-        debugResult: document.getElementById("debugResult"),
-        btnCancelCall: document.getElementById("btnCancelCall"),
+      const state = {
+        view: DEFAULT_VIEW,
+        catalogTab: "tools",
+        argTab: "form",
+        status: {},
+        services: [],
+        tools: { tools: [], bindings: [], issues: [] },
+        prompts: { prompts: [] },
+        resources: { resources: [] },
+        logs: [],
+        selectedServiceId: null,
       };
 
-      /* ------------------------------------------------------------------ */
-      /* Primitives                                                         */
-      /* ------------------------------------------------------------------ */
+      /* ==================================================================
+       * Element handles
+       * ================================================================== */
+
+      const $ = (id) => document.getElementById(id);
+
+      const el = {
+        globalAlert: $("globalAlert"),
+        nav: $("nav"),
+        navStatus: $("navStatus"),
+        navLogs: $("navLogs"),
+        navCatalog: $("navCatalog"),
+
+        // dashboard
+        dashPollState: $("dashPollState"),
+        statusFlags: $("statusFlags"),
+        statusRaw: $("statusRaw"),
+        serviceList: $("serviceList"),
+        quickAlert: $("quickAlert"),
+        quickTarget: $("quickTarget"),
+        btnQuickStart: $("btnQuickStart"),
+        btnQuickStop: $("btnQuickStop"),
+
+        // call tool
+        callAlert: $("callAlert"),
+        toolSelect: $("toolSelect"),
+        toolMeta: $("toolMeta"),
+        argForm: $("argForm"),
+        toolArgs: $("toolArgs"),
+        debugResult: $("debugResult"),
+        callResultMeta: $("callResultMeta"),
+        btnCancelCall: $("btnCancelCall"),
+        callSpinner: $("callSpinner"),
+
+        // logs
+        logsAlert: $("logsAlert"),
+        logList: $("logList"),
+        logCount: $("logCount"),
+        logFilter: $("logFilter"),
+        logErrorsOnly: $("logErrorsOnly"),
+        autoRefresh: $("autoRefresh"),
+        autoRefreshInterval: $("autoRefreshInterval"),
+        logPollState: $("logPollState"),
+
+        // catalog
+        catalogAlert: $("catalogAlert"),
+        catalogFilter: $("catalogFilter"),
+        catalogRaw: $("catalogRaw"),
+        catalogRawOut: $("catalogRawOut"),
+        toolCatalog: $("toolCatalog"),
+        promptCatalog: $("promptCatalog"),
+        resourceCatalog: $("resourceCatalog"),
+        tabToolCount: $("tabToolCount"),
+        tabPromptCount: $("tabPromptCount"),
+        tabResourceCount: $("tabResourceCount"),
+
+        // settings
+        settingsAlert: $("settingsAlert"),
+        fileInput: $("fileInput"),
+        content: $("content"),
+        isYaml: $("isYaml"),
+        apiKey: $("apiKey"),
+        baseUrl: $("baseUrl"),
+      };
+
+      /* ==================================================================
+       * Primitives
+       * ================================================================== */
 
       function escapeHtml(value) {
         return String(value ?? "")
@@ -567,15 +1158,10 @@
       }
 
       function isAbortError(error) {
-        return error instanceof DOMException
-          ? error.name === "AbortError"
-          : error && error.name === "AbortError";
+        return Boolean(error) && error.name === "AbortError";
       }
 
-      /**
-       * Thrown for a rejected credential so callers can stop polling instead of
-       * repeating a request that can never succeed.
-       */
+      /** Rejected credential: callers stop polling instead of retrying forever. */
       class UnauthorizedError extends Error {
         constructor(message) {
           super(
@@ -589,8 +1175,6 @@
         const apiKey = el.apiKey.value.trim();
         const merged = { ...extra };
         if (apiKey) {
-          // Both forms are sent: MCP clients commonly only allow configuring
-          // Authorization, while the admin API historically used x-api-key.
           merged["x-api-key"] = apiKey;
           merged["Authorization"] = `Bearer ${apiKey}`;
         }
@@ -604,105 +1188,469 @@
           throw new UnauthorizedError(body.error);
         }
         if (!response.ok) {
-          throw new Error(
+          const error = new Error(
             body.error || `HTTP ${response.status} ${response.statusText}`,
           );
+          error.status = response.status;
+          error.body = body;
+          throw error;
         }
         return body;
       }
 
-      function showAlert(message, type = "danger") {
-        el.alert.innerHTML = `<div class="alert ${type}">${escapeHtml(message)}</div>`;
+      /**
+       * Renders feedback INSIDE the panel that triggered the action.
+       *
+       * The previous console pushed everything to a single banner at the top of
+       * the document; when the operator was scrolled down to the debugger, a
+       * validation failure landed off-screen and the button looked dead.
+       */
+      function notify(
+        target,
+        message,
+        type = "danger",
+        { sticky = false } = {},
+      ) {
+        if (!target) return;
+        target.innerHTML = `<div class="alert ${type}">${escapeHtml(message)}</div>`;
+        if (!sticky && (type === "success" || type === "info")) {
+          const token = (target.dataset.token = String(Date.now()));
+          setTimeout(() => {
+            if (target.dataset.token === token) target.innerHTML = "";
+          }, 4000);
+        }
       }
 
-      function clearAlert() {
-        el.alert.innerHTML = "";
+      function clearNotice(target) {
+        if (target) target.innerHTML = "";
+      }
+
+      function showGlobal(message, type = "danger") {
+        el.globalAlert.innerHTML = `<div class="alert ${type}">${escapeHtml(message)}</div>`;
+      }
+
+      function clearGlobal() {
+        el.globalAlert.innerHTML = "";
       }
 
       /**
-       * Reference-counted busy state.
-       *
-       * A plain boolean lets whichever operation finishes first re-enable the
-       * buttons belonging to an operation that is still running.
+       * Reference-counted busy state, scoped so that navigation and Cancel stay
+       * usable. A plain boolean let whichever request finished first re-enable
+       * controls still owned by a running one.
        */
       let busyDepth = 0;
+      const BUSY_EXEMPT = new Set(["btnCancelCall"]);
+
       function setBusy(busy) {
         busyDepth = Math.max(0, busyDepth + (busy ? 1 : -1));
         const disabled = busyDepth > 0;
         document.querySelectorAll("button").forEach((button) => {
-          if (button === el.btnCancelCall) return;
+          if (BUSY_EXEMPT.has(button.id)) return;
+          if (button.closest("#nav, .tabs")) return;
           button.disabled = disabled;
         });
       }
 
-      /** Wraps a user-initiated action with busy state and error reporting. */
-      async function run(action) {
-        clearAlert();
+      /**
+       * Wraps a user action: busy state plus error reporting into the panel the
+       * action belongs to.
+       */
+      async function run(action, alertTarget) {
+        const target = alertTarget || currentAlertTarget();
+        clearNotice(target);
+        clearGlobal();
         setBusy(true);
         try {
           await action();
         } catch (error) {
           if (isAbortError(error)) return;
-          showAlert(error.message);
-          if (error instanceof UnauthorizedError) stopAutoRefresh();
+          if (error instanceof UnauthorizedError) {
+            stopLogPolling();
+            stopDashboardPolling();
+            showGlobal(
+              `${error.message} Open Settings to update the key; polling has been stopped.`,
+            );
+          } else {
+            notify(target, error.message);
+          }
         } finally {
           setBusy(false);
         }
       }
 
-      /* ------------------------------------------------------------------ */
-      /* Rendering                                                          */
-      /* ------------------------------------------------------------------ */
+      function currentAlertTarget() {
+        switch (state.view) {
+          case "dashboard":
+            return el.quickAlert;
+          case "call":
+            return el.callAlert;
+          case "logs":
+            return el.logsAlert;
+          case "catalog":
+            return el.catalogAlert;
+          case "settings":
+            return el.settingsAlert;
+          default:
+            return el.globalAlert;
+        }
+      }
 
-      function renderFlags(status) {
+      /* ==================================================================
+       * Lenient JSON parsing
+       * ================================================================== */
+
+      /**
+       * Parses tool arguments, tolerating the two mistakes that produce almost
+       * every "Expected ':' after property name" report: bare object keys and
+       * single-quoted strings. A repair is never silent — the caller surfaces it
+       * and rewrites the editor so the operator sees what was accepted.
+       */
+      function parseArguments(raw) {
+        const text = raw.trim();
+        if (!text) return { value: {}, repaired: false };
+
+        try {
+          return { value: JSON.parse(text), repaired: false };
+        } catch (strictError) {
+          const candidate = repairJsonish(text);
+          if (candidate !== text) {
+            try {
+              return {
+                value: JSON.parse(candidate),
+                repaired: true,
+                repairedText: candidate,
+              };
+            } catch {
+              /* fall through to the original, more accurate error */
+            }
+          }
+          const error = new Error(
+            `Tool arguments must be valid JSON. ${strictError.message}. ` +
+              `Keys and string values need double quotes, e.g. {"id": "123"}.`,
+          );
+          error.name = "ArgumentSyntaxError";
+          throw error;
+        }
+      }
+
+      /** Best-effort normaliser. Skips anything inside a double-quoted string. */
+      function repairJsonish(text) {
+        let out = "";
+        let inDouble = false;
+        let inSingle = false;
+
+        for (let i = 0; i < text.length; i += 1) {
+          const char = text[i];
+          const prev = text[i - 1];
+          const escaped = prev === "\\";
+
+          if (inDouble) {
+            out += char;
+            if (char === '"' && !escaped) inDouble = false;
+            continue;
+          }
+
+          if (inSingle) {
+            if (char === "'" && !escaped) {
+              inSingle = false;
+              out += '"';
+            } else if (char === '"' && !escaped) {
+              out += '\\"'; // a double quote inside a single-quoted string
+            } else {
+              out += char;
+            }
+            continue;
+          }
+
+          if (char === '"') {
+            inDouble = true;
+            out += char;
+            continue;
+          }
+
+          if (char === "'") {
+            inSingle = true;
+            out += '"';
+            continue;
+          }
+
+          out += char;
+        }
+
+        // Quote bare object keys: {id: 1} and {id "1"} both become {"id": ...}
+        out = out.replace(
+          /([{,]\s*)([A-Za-z_$][\w$.-]*)(\s*)(:|(?="))/g,
+          (match, lead, key, gap, tail) =>
+            `${lead}"${key}"${tail === ":" ? gap + ":" : ": "}`,
+        );
+
+        // Trailing commas
+        out = out.replace(/,(\s*[}\]])/g, "$1");
+        return out;
+      }
+
+      /* ==================================================================
+       * Navigation
+       * ================================================================== */
+
+      function setView(view, { pushHash = true } = {}) {
+        if (!document.getElementById(`view-${view}`)) view = DEFAULT_VIEW;
+        state.view = view;
+
+        document.querySelectorAll(".view").forEach((section) => {
+          section.classList.toggle("active", section.id === `view-${view}`);
+        });
+        el.nav.querySelectorAll("button[data-view]").forEach((button) => {
+          if (button.dataset.view === view) {
+            button.setAttribute("aria-current", "page");
+          } else {
+            button.removeAttribute("aria-current");
+          }
+        });
+
+        if (pushHash && window.location.hash !== `#${view}`) {
+          window.location.hash = view;
+        }
+
+        window.scrollTo({ top: 0, behavior: "instant" });
+        syncPollers();
+        onViewEntered(view);
+      }
+
+      function onViewEntered(view) {
+        // Fetch what the view actually needs instead of hammering every endpoint
+        // on a global timer the way the old console did.
+        if (view === "dashboard") void refreshStatus().catch(reportBackground);
+        if (view === "call" && state.tools.tools.length === 0) {
+          void refreshCatalog().catch(reportBackground);
+        }
+        if (view === "logs") void refreshLogs().catch(reportBackground);
+        if (view === "catalog") void refreshCatalog().catch(reportBackground);
+      }
+
+      function reportBackground(error) {
+        if (isAbortError(error)) return;
+        if (error instanceof UnauthorizedError) {
+          stopLogPolling();
+          stopDashboardPolling();
+          showGlobal(`${error.message} Polling has been stopped.`);
+          return;
+        }
+        console.warn(error);
+      }
+
+      /* ==================================================================
+       * Data loading
+       * ================================================================== */
+
+      let statusController = null;
+
+      async function refreshStatus() {
+        statusController?.abort();
+        statusController = new AbortController();
+        const headers = authHeaders();
+        const { signal } = statusController;
+
+        const [status, servers] = await Promise.all([
+          request("/api/status", { headers, signal }),
+          request("/api/servers", { headers, signal }),
+        ]);
+
+        state.status = status || {};
+        state.services = servers?.services || [];
+        renderDashboard();
+        renderNavCounts();
+      }
+
+      let catalogController = null;
+
+      async function refreshCatalog() {
+        catalogController?.abort();
+        catalogController = new AbortController();
+        const headers = authHeaders();
+        const { signal } = catalogController;
+
+        const [tools, prompts, resources] = await Promise.all([
+          request("/api/tools", { headers, signal }),
+          request("/api/prompts", { headers, signal }),
+          request("/api/resources", { headers, signal }),
+        ]);
+
+        state.tools = normaliseTools(tools);
+        state.prompts = { prompts: asArray(prompts, "prompts"), raw: prompts };
+        state.resources = {
+          resources: asArray(resources, "resources"),
+          raw: resources,
+        };
+
+        renderCatalog();
+        renderToolPicker();
+        renderNavCounts();
+      }
+
+      let logsController = null;
+
+      async function refreshLogs() {
+        logsController?.abort();
+        logsController = new AbortController();
+        const data = await request("/api/logs", {
+          headers: authHeaders(),
+          signal: logsController.signal,
+        });
+        state.logs = data?.logs || [];
+        renderLogs();
+        renderNavCounts();
+      }
+
+      function normaliseTools(payload) {
+        return {
+          tools: asArray(payload, "tools"),
+          bindings: asArray(payload, "bindings"),
+          issues: asArray(payload, "issues"),
+          raw: payload,
+        };
+      }
+
+      /** Accepts both `{key: [...]}` and a bare array, since DTO shapes vary. */
+      function asArray(payload, key) {
+        if (Array.isArray(payload)) return payload;
+        const value = payload?.[key];
+        return Array.isArray(value) ? value : [];
+      }
+
+      /* ==================================================================
+       * Polling — scoped to the view that owns it
+       * ================================================================== */
+
+      let logTimer = null;
+      let dashTimer = null;
+
+      function logPollInterval() {
+        return Number(el.autoRefreshInterval.value) || 3000;
+      }
+
+      function startLogPolling() {
+        stopLogPolling();
+        logTimer = setInterval(() => {
+          if (document.hidden) return; // no point polling a background tab
+          refreshLogs().catch(reportBackground);
+        }, logPollInterval());
+        el.logPollState.innerHTML = `<span class="live-dot"></span> live · ${logPollInterval() / 1000}s`;
+      }
+
+      function stopLogPolling() {
+        if (logTimer) clearInterval(logTimer);
+        logTimer = null;
+        el.logPollState.textContent = "paused";
+      }
+
+      function startDashboardPolling() {
+        stopDashboardPolling();
+        dashTimer = setInterval(() => {
+          if (document.hidden) return;
+          refreshStatus().catch(reportBackground);
+        }, 5000);
+        el.dashPollState.innerHTML = `<span class="live-dot"></span> live · 5s`;
+      }
+
+      function stopDashboardPolling() {
+        if (dashTimer) clearInterval(dashTimer);
+        dashTimer = null;
+        el.dashPollState.textContent = "idle";
+      }
+
+      /** Only the visible view polls; leaving a view stops its traffic. */
+      function syncPollers() {
+        if (state.view === "logs" && el.autoRefresh.checked) startLogPolling();
+        else stopLogPolling();
+
+        if (state.view === "dashboard") startDashboardPolling();
+        else stopDashboardPolling();
+      }
+
+      /* ==================================================================
+       * Rendering: navigation counters
+       * ================================================================== */
+
+      function renderNavCounts() {
+        const status = state.status;
+        el.navStatus.textContent = status.active
+          ? "live"
+          : status.specLoaded
+            ? "idle"
+            : "–";
+        el.navLogs.textContent = String(state.logs.length);
+        el.navCatalog.textContent = String(
+          state.tools.tools.length +
+            state.prompts.prompts.length +
+            state.resources.resources.length,
+        );
+      }
+
+      /* ==================================================================
+       * Rendering: dashboard
+       * ================================================================== */
+
+      function renderDashboard() {
+        const status = state.status;
+
+        $("metricSpecLoaded").textContent = status.specLoaded ? "Yes" : "No";
+        $("metricActive").textContent = status.active ? "Running" : "Stopped";
+        $("metricTools").textContent = String(status.toolCount ?? 0);
+        $("metricPrompts").textContent = String(status.promptCount ?? 0);
+        $("metricResources").textContent = String(status.resourceCount ?? 0);
+
         const flags = [
           `<span class="pill ${status.specLoaded ? "success" : "warn"}">Spec ${status.specLoaded ? "Loaded" : "Missing"}</span>`,
           `<span class="pill ${status.active ? "success" : "danger"}">Service ${status.active ? "Running" : "Stopped"}</span>`,
-          `<span class="pill" title="Streamable HTTP and legacy SSE sessions combined.">Active Sessions ${escapeHtml(status.activeSessions ?? 0)}</span>`,
+          `<span class="pill plain" title="Streamable HTTP and legacy SSE sessions combined.">Sessions ${escapeHtml(status.activeSessions ?? 0)}</span>`,
         ];
+        if ((status.pendingSessions ?? 0) > 0) {
+          flags.push(
+            `<span class="pill plain" title="Initialize requests accepted but not yet registered.">Pending ${escapeHtml(status.pendingSessions)}</span>`,
+          );
+        }
         if ((status.degradedToolCount ?? 0) > 0) {
           flags.push(
             `<span class="pill warn">Degraded Tools ${escapeHtml(status.degradedToolCount)}</span>`,
           );
         }
-        if (status.authRequired) {
-          flags.push(`<span class="pill">Auth Required</span>`);
-        }
         flags.push(
-          `<span class="pill warn" title="STDIO is available from the CLI only because browsers cannot speak STDIO.">STDIO CLI Only</span>`,
+          `<span class="pill plain">${status.authRequired ? "Auth Required" : "Auth Open"}</span>`,
         );
+        if (status.persistEnabled !== undefined) {
+          flags.push(
+            `<span class="pill plain">${status.persistEnabled ? "Persistence On" : "Persistence Off"}</span>`,
+          );
+        }
+        if (status.specSource) {
+          flags.push(
+            `<span class="pill plain">Source ${escapeHtml(status.specSource)}</span>`,
+          );
+        }
         el.statusFlags.innerHTML = flags.join("");
+
+        el.statusRaw.textContent = pretty(status);
+
+        renderServiceList();
+        renderQuickControl();
       }
 
-      function renderMetrics(status) {
-        document.getElementById("metricSpecLoaded").textContent =
-          status.specLoaded ? "Yes" : "No";
-        document.getElementById("metricActive").textContent = status.active
-          ? "Yes"
-          : "No";
-        document.getElementById("metricTools").textContent = String(
-          status.toolCount ?? 0,
-        );
-        document.getElementById("metricPrompts").textContent = String(
-          status.promptCount ?? 0,
-        );
-        document.getElementById("metricResources").textContent = String(
-          status.resourceCount ?? 0,
-        );
-
-        // Never clobber a field the user is editing. This runs on a 3s timer, so
-        // overwriting mid-keystroke — or blanking the field because the server has
-        // no override configured — makes the input look broken.
-        const editing =
-          document.activeElement === el.baseUrl ||
-          el.baseUrl.dataset.dirty === "1";
-        if (!editing) el.baseUrl.value = status.baseUrl || "";
-      }
-
-      function renderServiceList(services) {
-        if (!services || services.length === 0) {
-          el.serviceList.innerHTML = `<div class="muted">No services available.</div>`;
+      function renderServiceList() {
+        const services = state.services;
+        if (services.length === 0) {
+          el.serviceList.innerHTML = `<div class="empty">No services registered. Load a document from Settings.</div>`;
           return;
+        }
+
+        // Keep a valid selection so the hero buttons always have a target.
+        if (
+          !services.some((service) => service.id === state.selectedServiceId)
+        ) {
+          const running = services.find(
+            (service) => service.status === "running",
+          );
+          state.selectedServiceId = (running || services[0]).id;
         }
 
         el.serviceList.innerHTML = services
@@ -713,48 +1661,77 @@
                 : service.status === "stopped"
                   ? "warn"
                   : "danger";
+            const selected = service.id === state.selectedServiceId;
             const lastError = service.lastError
               ? `<div class="hint" style="margin-top:8px;color:#fecaca;">${escapeHtml(service.lastError.message)} (${escapeHtml(service.lastError.at)})</div>`
               : "";
-            return `
-            <div class="service-item">
-              <div class="row">
-                <strong>${escapeHtml(service.title)}</strong>
-                <span class="pill ${pillClass}">${escapeHtml(service.status)}</span>
-                <span class="pill mono">${escapeHtml(service.id)}</span>
+            return `  
+              <div class="item clickable" data-service-id="${escapeHtml(service.id)}"  
+                   style="${selected ? "border-color:rgba(96,165,250,0.5);" : ""}">  
+                <div class="row">  
+                  <strong>${escapeHtml(service.title)}</strong>  
+                  <span class="pill ${pillClass}">${escapeHtml(service.status)}</span>  
+                  ${selected ? `<span class="pill">selected</span>` : ""}  
+                </div>  
+                <div class="hint mono" style="margin-top:6px;">${escapeHtml(service.id)}</div>  
+                <div class="hint" style="margin-top:6px;">  
+                  v${escapeHtml(service.version)} · ${escapeHtml(service.source)} ·  
+                  ${escapeHtml(service.toolCount)} tools ·  
+                  ${escapeHtml(service.promptCount)} prompts ·  
+                                    ${escapeHtml(service.resourceCount)} resources
+                </div>
+                ${service.baseUrl ? `<div class="hint mono" style="margin-top:6px;">${escapeHtml(service.baseUrl)}</div>` : ""}
+                ${lastError}
+                <div class="row" style="margin-top:10px;">
+                  <button class="ghost" data-action="start" data-id="${escapeHtml(service.id)}">Start</button>
+                  <button class="secondary" data-action="stop" data-id="${escapeHtml(service.id)}">Stop</button>
+                </div>
               </div>
-              <div class="hint" style="margin-top:8px;">Version ${escapeHtml(service.version)} · Source ${escapeHtml(service.source)} · Tools ${escapeHtml(service.toolCount)} · Prompts ${escapeHtml(service.promptCount)} · Resources ${escapeHtml(service.resourceCount)}</div>
-              ${service.baseUrl ? `<div class="hint mono" style="margin-top:6px;">${escapeHtml(service.baseUrl)}</div>` : ""}
-              ${lastError}
-              <div class="row" style="margin-top:10px;">
-                <button class="ghost" data-action="start" data-id="${escapeHtml(service.id)}">Start</button>
-                <button class="secondary" data-action="stop" data-id="${escapeHtml(service.id)}">Stop</button>
-              </div>
-            </div>
-          `;
+            `;
           })
           .join("");
       }
 
-      /** Reads the required flag from either the projected DTO or a raw binding. */
-      function argumentIsRequired(argument) {
-        if (typeof argument.required === "boolean") return argument.required;
-        return argument.parameter?.required === true;
+      function renderQuickControl() {
+        const service = state.services.find(
+          (item) => item.id === state.selectedServiceId,
+        );
+        el.quickTarget.textContent = service
+          ? `${service.title} (${service.id})`
+          : "(none)";
+
+        const running = service?.status === "running";
+        el.btnQuickStart.disabled = !service || running || busyDepth > 0;
+        el.btnQuickStop.disabled = !service || !running || busyDepth > 0;
       }
 
-      function renderToolCatalog(payload) {
-        const tools = payload.tools || [];
-        const bindings = payload.bindings || [];
+      /* ==================================================================
+       * Rendering: tool picker & argument form
+       * ================================================================== */
+
+      function bindingFor(toolName) {
+        return (
+          state.tools.bindings.find((item) => item.toolName === toolName) ||
+          null
+        );
+      }
+
+      function toolFor(toolName) {
+        return state.tools.tools.find((item) => item.name === toolName) || null;
+      }
+
+      function renderToolPicker() {
+        const tools = state.tools.tools;
 
         if (tools.length === 0) {
-          el.toolCatalog.innerHTML = `<div class="muted">No tools generated.</div>`;
           el.toolSelect.innerHTML = `<option value="">No tools available</option>`;
+          el.toolMeta.classList.add("hidden");
+          el.argForm.innerHTML = `<div class="empty">Load a document to generate tools.</div>`;
           return;
         }
 
-        // Preserve the operator's selection across the 3s refresh; otherwise the
-        // dropdown snaps back to the first tool and stops matching the arguments
-        // already typed below it.
+        // Preserve the operator's selection across reloads; snapping back to the
+        // first tool would silently desynchronise it from the typed arguments.
         const previous = el.toolSelect.value;
         el.toolSelect.innerHTML = tools
           .map(
@@ -766,11 +1743,324 @@
           el.toolSelect.value = previous;
         }
 
-        const bindingMap = new Map(
-          bindings.map((item) => [item.toolName, item]),
+        renderToolMeta();
+        renderArgForm();
+      }
+
+      function renderToolMeta() {
+        const name = el.toolSelect.value;
+        const tool = toolFor(name);
+        const binding = bindingFor(name);
+        if (!tool) {
+          el.toolMeta.classList.add("hidden");
+          return;
+        }
+
+        const method = (binding?.method || "").toUpperCase();
+        const rows = [
+          `<div class="row">
+             <span class="pill mono">${escapeHtml(method)} ${escapeHtml(binding?.path || "")}</span>
+             ${
+               binding
+                 ? binding.fullySupported
+                   ? `<span class="pill success">Full Support</span>`
+                   : `<span class="pill warn">Partial Support</span>`
+                 : ""
+             }
+             ${
+               binding?.isStandardMethod === false
+                 ? `<span class="pill danger" title="Custom method from additionalOperations; no HTTP semantics are assumed.">Custom Method</span>`
+                 : ""
+             }
+           </div>`,
+        ];
+        if (tool.description) {
+          rows.push(
+            `<div class="hint" style="margin-top:8px;">${escapeHtml(tool.description)}</div>`,
+          );
+        }
+        if ((binding?.degradationReasons || []).length) {
+          rows.push(
+            `<div class="hint" style="margin-top:6px;color:#fde68a;">${escapeHtml(binding.degradationReasons.join(" | "))}</div>`,
+          );
+        }
+        el.toolMeta.innerHTML = rows.join("");
+        el.toolMeta.classList.remove("hidden");
+      }
+
+      /** Reads the required flag from either the projected DTO or a raw binding. */
+      function argumentIsRequired(argument) {
+        if (typeof argument.required === "boolean") return argument.required;
+        return argument.parameter?.required === true;
+      }
+
+      /**
+       * Builds an input per argument from the tool's inputSchema.
+       *
+       * The form — not the JSON box — is the primary entry point. Hand-writing
+       * the whole object with no schema hint in front of you is what produced the
+       * malformed-JSON errors in the first place.
+       */
+      function renderArgForm() {
+        const name = el.toolSelect.value;
+        const tool = toolFor(name);
+        if (!tool) {
+          el.argForm.innerHTML = `<div class="empty">Select a tool.</div>`;
+          return;
+        }
+
+        const schema = tool.inputSchema || {};
+        const properties = schema.properties || {};
+        const requiredList = Array.isArray(schema.required)
+          ? schema.required
+          : [];
+        const keys = Object.keys(properties);
+
+        if (keys.length === 0) {
+          el.argForm.innerHTML = `<div class="empty">This tool takes no arguments. Press Call Tool.</div>`;
+          return;
+        }
+
+        const binding = bindingFor(name);
+        const argMeta = new Map(
+          (binding?.arguments || []).map((argument) => [
+            argument.key,
+            argument,
+          ]),
         );
 
-        el.toolCatalog.innerHTML = tools
+        el.argForm.innerHTML = keys
+          .map((key) => {
+            const property = properties[key] || {};
+            const meta = argMeta.get(key);
+            const required =
+              requiredList.includes(key) ||
+              (meta ? argumentIsRequired(meta) : false);
+            const type = Array.isArray(property.type)
+              ? property.type.filter((entry) => entry !== "null")[0] || "string"
+              : property.type || inferType(property);
+            const location = meta?.in ? ` · ${escapeHtml(meta.in)}` : "";
+            const description = property.description
+              ? `<div class="hint">${escapeHtml(property.description)}</div>`
+              : "";
+
+            let control;
+            if (Array.isArray(property.enum) && property.enum.length > 0) {
+              const options = [
+                required ? "" : `<option value="">(omit)</option>`,
+                ...property.enum.map(
+                  (value) =>
+                    `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`,
+                ),
+              ].join("");
+              control = `<select data-arg="${escapeHtml(key)}" data-type="${escapeHtml(type)}">${options}</select>`;
+            } else if (type === "boolean") {
+              control = `<select data-arg="${escapeHtml(key)}" data-type="boolean">
+                  ${required ? "" : `<option value="">(omit)</option>`}
+                  <option value="true">true</option>
+                  <option value="false">false</option>
+                </select>`;
+            } else if (type === "object" || type === "array") {
+              // Structured values still need JSON, but scoped to one field the
+              // error message can point at precisely.
+              control = `<textarea data-arg="${escapeHtml(key)}" data-type="${escapeHtml(type)}"
+                  spellcheck="false" style="min-height:96px;"
+                  placeholder="${type === "array" ? "[ ]" : "{ }"}"></textarea>`;
+            } else {
+              const inputType =
+                type === "number" || type === "integer" ? "number" : "text";
+              const step = type === "integer" ? ' step="1"' : "";
+              control = `<input type="${inputType}"${step} data-arg="${escapeHtml(key)}"
+                  data-type="${escapeHtml(type)}"
+                  placeholder="${escapeHtml(property.example ?? property.default ?? "")}" />`;
+            }
+
+            return `
+              <div class="field">
+                <label for="">
+                  <span class="mono">${escapeHtml(key)}</span>
+                  ${required ? `<span class="req">*</span>` : ""}
+                  <span class="muted">${escapeHtml(type)}${location}</span>
+                </label>
+                ${control}
+                ${description}
+              </div>
+            `;
+          })
+          .join("");
+
+        // Body payload, if any, gets its own field appended.
+        if (binding?.bodyKey && !keys.includes(binding.bodyKey)) {
+          el.argForm.insertAdjacentHTML(
+            "beforeend",
+            `<div class="field">
+               <label>
+                 <span class="mono">${escapeHtml(binding.bodyKey)}</span>
+                 ${binding.bodyRequired ? `<span class="req">*</span>` : ""}
+                 <span class="muted">body · ${escapeHtml(binding.bodyMediaType || binding.bodyEncoding || "unknown")}</span>
+               </label>
+               <textarea data-arg="${escapeHtml(binding.bodyKey)}" data-type="object"
+                 spellcheck="false" style="min-height:120px;" placeholder="{ }"></textarea>
+             </div>`,
+          );
+        }
+      }
+
+      function inferType(property) {
+        if (property.properties) return "object";
+        if (property.items) return "array";
+        return "string";
+      }
+
+      /**
+       * Collects the form into an arguments object.
+       *
+       * Empty optional fields are omitted rather than sent as "": an empty string
+       * is a real value upstream and would land in the query string.
+       */
+      function collectArgsFromForm() {
+        const args = {};
+        const errors = [];
+
+        el.argForm.querySelectorAll("[data-arg]").forEach((control) => {
+          const key = control.dataset.arg;
+          const type = control.dataset.type;
+          const raw = control.value;
+
+          if (raw === "" || raw === null) return;
+
+          if (type === "number" || type === "integer") {
+            const parsed = Number(raw);
+            if (Number.isNaN(parsed)) {
+              errors.push(`${key} must be a number.`);
+              return;
+            }
+            args[key] = type === "integer" ? Math.trunc(parsed) : parsed;
+            return;
+          }
+
+          if (type === "boolean") {
+            args[key] = raw === "true";
+            return;
+          }
+
+          if (type === "object" || type === "array") {
+            try {
+              args[key] = JSON.parse(raw.trim());
+            } catch (error) {
+              errors.push(`${key} is not valid JSON: ${error.message}`);
+            }
+            return;
+          }
+
+          args[key] = raw;
+        });
+
+        if (errors.length > 0) {
+          const error = new Error(errors.join(" "));
+          error.name = "ArgumentSyntaxError";
+          throw error;
+        }
+        return args;
+      }
+
+      function setArgTab(tab) {
+        state.argTab = tab;
+        $("argPanel-form").classList.toggle("hidden", tab !== "form");
+        $("argPanel-json").classList.toggle("hidden", tab !== "json");
+        document
+          .querySelectorAll("#argTabs button[data-argtab]")
+          .forEach((button) => {
+            button.setAttribute(
+              "aria-selected",
+              button.dataset.argtab === tab ? "true" : "false",
+            );
+          });
+
+        // Moving to Raw JSON prefills from the form so the two views never
+        // disagree about what will actually be sent.
+        if (tab === "json" && !el.toolArgs.value.trim()) {
+          try {
+            el.toolArgs.value = JSON.stringify(collectArgsFromForm(), null, 2);
+          } catch {
+            /* an invalid form field is reported when the call is made */
+          }
+        }
+      }
+
+      /* ==================================================================
+       * Rendering: catalog
+       * ================================================================== */
+
+      function setCatalogTab(tab) {
+        state.catalogTab = tab;
+        ["tools", "prompts", "resources"].forEach((key) => {
+          $(`catPanel-${key}`).classList.toggle("hidden", key !== tab);
+        });
+        document
+          .querySelectorAll("#catalogTabs button[data-cat]")
+          .forEach((button) => {
+            button.setAttribute(
+              "aria-selected",
+              button.dataset.cat === tab ? "true" : "false",
+            );
+          });
+        renderCatalog();
+      }
+
+      function matchesFilter(haystack, needle) {
+        if (!needle) return true;
+        return haystack.toLowerCase().includes(needle.toLowerCase());
+      }
+
+      function renderCatalog() {
+        el.tabToolCount.textContent = String(state.tools.tools.length);
+        el.tabPromptCount.textContent = String(state.prompts.prompts.length);
+        el.tabResourceCount.textContent = String(
+          state.resources.resources.length,
+        );
+
+        renderToolCatalog();
+        renderPromptCatalog();
+        renderResourceCatalog();
+
+        const showRaw = el.catalogRaw.checked;
+        $("catPanel-raw").classList.toggle("hidden", !showRaw);
+        if (showRaw) {
+          const payload =
+            state.catalogTab === "tools"
+              ? state.tools.raw
+              : state.catalogTab === "prompts"
+                ? state.prompts.raw
+                : state.resources.raw;
+          el.catalogRawOut.textContent = pretty(payload);
+        }
+      }
+
+      function renderToolCatalog() {
+        const filter = el.catalogFilter.value.trim();
+        const bindingMap = new Map(
+          state.tools.bindings.map((item) => [item.toolName, item]),
+        );
+
+        const items = state.tools.tools.filter((tool) => {
+          const binding = bindingMap.get(tool.name) || {};
+          return matchesFilter(
+            `${tool.name} ${tool.description || ""} ${binding.method || ""} ${binding.path || ""}`,
+            filter,
+          );
+        });
+
+        if (items.length === 0) {
+          el.toolCatalog.innerHTML = `<div class="empty">${
+            state.tools.tools.length === 0
+              ? "No tools generated."
+              : "No tool matches the filter."
+          }</div>`;
+          return;
+        }
+
+        el.toolCatalog.innerHTML = items
           .map((tool) => {
             const binding = bindingMap.get(tool.name) || {};
             const supportPill = binding.fullySupported
@@ -799,32 +2089,166 @@
               ? `<div class="hint" style="margin-top:6px;color:#fde68a;">${escapeHtml(binding.degradationReasons.join(" | "))}</div>`
               : "";
             return `
-            <div class="tool-item">
-              <div class="row">
-                <strong class="mono">${escapeHtml(tool.name)}</strong>
-                ${supportPill}
-                ${customPill}
-                <span class="pill mono">${escapeHtml((binding.method || "").toUpperCase())} ${escapeHtml(binding.path || "")}</span>
+              <div class="item">
+                <div class="row">
+                  <strong class="mono">${escapeHtml(tool.name)}</strong>
+                  ${supportPill}
+                  ${customPill}
+                  <span class="pill mono">${escapeHtml((binding.method || "").toUpperCase())} ${escapeHtml(binding.path || "")}</span>
+                </div>
+                <div class="hint" style="margin-top:8px;">${escapeHtml(tool.description || "")}</div>
+                <div class="hint" style="margin-top:6px;">Arguments: ${escapeHtml(args || "None")}</div>
+                ${bodyLine}
+                ${omitted}
+                ${notes}
+                ${reasons}
+                <div class="row" style="margin-top:10px;">
+                  <button class="ghost" data-call-tool="${escapeHtml(tool.name)}">Open in Call Tool</button>
+                </div>
+                <details style="margin-top:10px;">
+                  <summary class="hint">Input schema</summary>
+                  <div class="surface" style="margin-top:10px;"><pre class="mono">${escapeHtml(pretty(tool.inputSchema || {}))}</pre></div>
+                </details>
               </div>
-              <div class="hint" style="margin-top:8px;">${escapeHtml(tool.description || "")}</div>
-              <div class="hint" style="margin-top:6px;">Arguments: ${escapeHtml(args || "None")}</div>
-              ${bodyLine}
-              ${omitted}
-              ${notes}
-              ${reasons}
-            </div>
-          `;
+            `;
           })
           .join("");
       }
 
-      function renderLogs(logs) {
-        if (!logs || logs.length === 0) {
-          el.logList.innerHTML = `<div class="muted">No logs recorded yet.</div>`;
+      /**
+       * Prompts rendered as cards rather than a JSON dump.
+       *
+       * Field names differ between MCP revisions, so each accessor falls back
+       * across the known spellings instead of assuming one shape.
+       */
+      function renderPromptCatalog() {
+        const filter = el.catalogFilter.value.trim();
+        const items = state.prompts.prompts.filter((prompt) =>
+          matchesFilter(
+            `${prompt.name || ""} ${prompt.title || ""} ${prompt.description || ""}`,
+            filter,
+          ),
+        );
+
+        if (items.length === 0) {
+          el.promptCatalog.innerHTML = `<div class="empty">${
+            state.prompts.prompts.length === 0
+              ? "No prompts generated."
+              : "No prompt matches the filter."
+          }</div>`;
           return;
         }
 
-        el.logList.innerHTML = logs
+        el.promptCatalog.innerHTML = items
+          .map((prompt) => {
+            const promptArgs = Array.isArray(prompt.arguments)
+              ? prompt.arguments
+              : [];
+            const argRows = promptArgs.length
+              ? `<div class="list" style="margin-top:10px;">${promptArgs
+                  .map(
+                    (argument) => `
+                      <div class="surface">
+                        <div class="row">
+                          <span class="mono">${escapeHtml(argument.name)}</span>
+                          ${argument.required ? `<span class="pill danger">required</span>` : `<span class="pill plain">optional</span>`}
+                        </div>
+                        ${argument.description ? `<div class="hint" style="margin-top:6px;">${escapeHtml(argument.description)}</div>` : ""}
+                      </div>
+                    `,
+                  )
+                  .join("")}</div>`
+              : `<div class="hint" style="margin-top:8px;">No arguments.</div>`;
+
+            return `
+              <div class="item">
+                <div class="row">
+                  <strong class="mono">${escapeHtml(prompt.name || "(unnamed)")}</strong>
+                  ${prompt.title ? `<span class="pill plain">${escapeHtml(prompt.title)}</span>` : ""}
+                  <span class="pill plain">${promptArgs.length} args</span>
+                </div>
+                ${prompt.description ? `<div class="hint" style="margin-top:8px;">${escapeHtml(prompt.description)}</div>` : ""}
+                ${argRows}
+                <details style="margin-top:10px;">
+                  <summary class="hint">Raw definition</summary>
+                  <div class="surface" style="margin-top:10px;"><pre class="mono">${escapeHtml(pretty(prompt))}</pre></div>
+                </details>
+              </div>
+            `;
+          })
+          .join("");
+      }
+
+      function renderResourceCatalog() {
+        const filter = el.catalogFilter.value.trim();
+        const items = state.resources.resources.filter((resource) =>
+          matchesFilter(
+            `${resource.name || ""} ${resource.uri || resource.uriTemplate || ""} ${resource.description || ""} ${resource.mimeType || ""}`,
+            filter,
+          ),
+        );
+
+        if (items.length === 0) {
+          el.resourceCatalog.innerHTML = `<div class="empty">${
+            state.resources.resources.length === 0
+              ? "No resources generated."
+              : "No resource matches the filter."
+          }</div>`;
+          return;
+        }
+
+        el.resourceCatalog.innerHTML = items
+          .map((resource) => {
+            // A templated resource carries uriTemplate; a static one carries uri.
+            const uri = resource.uri || resource.uriTemplate || "";
+            const templated = Boolean(resource.uriTemplate);
+            return `
+              <div class="item">
+                <div class="row">
+                  <strong class="mono">${escapeHtml(resource.name || "(unnamed)")}</strong>
+                  ${templated ? `<span class="pill">template</span>` : `<span class="pill plain">static</span>`}
+                  ${resource.mimeType ? `<span class="pill plain mono">${escapeHtml(resource.mimeType)}</span>` : ""}
+                </div>
+                <div class="hint mono" style="margin-top:8px;word-break:break-all;">${escapeHtml(uri)}</div>
+                ${resource.description ? `<div class="hint" style="margin-top:6px;">${escapeHtml(resource.description)}</div>` : ""}
+                <details style="margin-top:10px;">
+                  <summary class="hint">Raw definition</summary>
+                  <div class="surface" style="margin-top:10px;"><pre class="mono">${escapeHtml(pretty(resource))}</pre></div>
+                </details>
+              </div>
+            `;
+          })
+          .join("");
+      }
+
+      /* ==================================================================
+       * Rendering: logs
+       * ================================================================== */
+
+      function renderLogs() {
+        el.logCount.textContent = String(state.logs.length);
+
+        const filter = el.logFilter.value.trim();
+        const errorsOnly = el.logErrorsOnly.checked;
+
+        const items = state.logs.filter((log) => {
+          if (errorsOnly && log.success !== false) return false;
+          return matchesFilter(
+            `${log.toolName || ""} ${log.url || ""} ${log.method || ""} ${log.protocol || ""} ${log.status ?? ""} ${log.error || ""}`,
+            filter,
+          );
+        });
+
+        if (items.length === 0) {
+          el.logList.innerHTML = `<div class="empty">${
+            state.logs.length === 0
+              ? "No traffic recorded yet."
+              : "No entry matches the current filter."
+          }</div>`;
+          return;
+        }
+
+        el.logList.innerHTML = items
           .map((log) => {
             const pillClass =
               log.success === true
@@ -834,120 +2258,62 @@
                   : "warn";
             const duration =
               typeof log.durationMs === "number"
-                ? `<span class="pill mono">${escapeHtml(log.durationMs)}ms</span>`
+                ? `<span class="pill plain mono">${escapeHtml(log.durationMs)}ms</span>`
                 : "";
             const truncated = log.truncated
               ? `<span class="pill warn">truncated</span>`
               : "";
             return `
-            <div class="log-item">
-              <div class="row">
-                <span class="pill ${pillClass}">${escapeHtml(log.direction)}</span>
-                <span class="pill mono">${escapeHtml(log.method || log.protocol || "internal")}</span>
-                <span class="pill mono">${escapeHtml(log.status ?? "-")}</span>
-                ${duration}
-                ${truncated}
-                <span class="hint">${escapeHtml(log.at)}</span>
+              <div class="item">
+                <div class="row">
+                  <span class="pill ${pillClass}">${escapeHtml(log.direction)}</span>
+                  <span class="pill plain mono">${escapeHtml(log.method || log.protocol || "internal")}</span>
+                  <span class="pill plain mono">${escapeHtml(log.status ?? "-")}</span>
+                  ${duration}
+                  ${truncated}
+                  <span class="hint">${escapeHtml(log.at)}</span>
+                </div>
+                <div class="hint mono" style="margin-top:8px;word-break:break-all;">${escapeHtml(log.toolName || "")} ${escapeHtml(log.url || "")}</div>
+                ${log.error ? `<div class="hint" style="margin-top:6px;color:#fecaca;">${escapeHtml(log.error)}</div>` : ""}
+                <details style="margin-top:10px;">
+                  <summary class="hint">View payload</summary>
+                  <div class="surface" style="margin-top:10px;"><pre class="mono">${escapeHtml(pretty(log))}</pre></div>
+                </details>
               </div>
-              <div class="hint mono" style="margin-top:8px;">${escapeHtml(log.toolName || "")} ${escapeHtml(log.url || "")}</div>
-              ${log.error ? `<div class="hint" style="margin-top:6px;color:#fecaca;">${escapeHtml(log.error)}</div>` : ""}
-              <details style="margin-top:10px;">
-                <summary class="hint">View payload</summary>
-                <div class="surface" style="margin-top:10px;"><pre class="mono">${escapeHtml(pretty(log))}</pre></div>
-              </details>
-            </div>
-          `;
+            `;
           })
           .join("");
       }
 
-      /* ------------------------------------------------------------------ */
-      /* Data loading                                                       */
-      /* ------------------------------------------------------------------ */
-
-      let refreshInFlight = false;
-      let refreshController = null;
-
-      async function refreshLogs(signal) {
-        const data = await request("/api/logs", {
-          headers: authHeaders(),
-          ...(signal ? { signal } : {}),
-        });
-        renderLogs(data.logs || []);
-      }
-
-      /**
-       * Reloads every panel.
-       *
-       * Deliberately does not touch the alert area: this also runs on a timer, and
-       * clearing the banner here would erase an error the operator has not read
-       * yet. A single in-flight guard prevents overlapping polls from rendering a
-       * stale snapshot over a fresh one when the server is slow.
-       */
-      async function refreshAll() {
-        if (refreshInFlight) return;
-        refreshInFlight = true;
-        refreshController?.abort();
-        refreshController = new AbortController();
-        const { signal } = refreshController;
-
-        try {
-          const headers = authHeaders();
-          const get = (url) => request(url, { headers, signal });
-          const [status, tools, prompts, resources, servers] =
-            await Promise.all([
-              get("/api/status"),
-              get("/api/tools"),
-              get("/api/prompts"),
-              get("/api/resources"),
-              get("/api/servers"),
-            ]);
-
-          latestToolsPayload = tools;
-          el.status.textContent = pretty(status);
-          el.prompts.textContent = pretty(prompts);
-          el.resources.textContent = pretty(resources);
-
-          renderFlags(status);
-          renderMetrics(status);
-          renderServiceList(servers.services || []);
-          renderToolCatalog(tools);
-
-          await refreshLogs(signal);
-        } finally {
-          refreshInFlight = false;
-        }
-      }
-
-      /* ------------------------------------------------------------------ */
-      /* Actions                                                            */
-      /* ------------------------------------------------------------------ */
+      /* ==================================================================
+       * Actions
+       * ================================================================== */
 
       function uploadFile() {
         return run(async () => {
           const file = el.fileInput.files[0];
           if (!file) {
-            showAlert("Select a file first.", "warn");
+            notify(el.settingsAlert, "Select a file first.", "warn");
             return;
           }
           const form = new FormData();
           form.append("file", file);
-          // No Content-Type here: the boundary must be generated by fetch.
+          // No Content-Type header: the multipart boundary must come from fetch.
           await request("/api/spec/upload", {
             method: "POST",
             body: form,
             headers: authHeaders(),
           });
-          showAlert(`Loaded "${file.name}".`, "success");
-          await refreshAll();
-        });
+          notify(el.settingsAlert, `Loaded "${file.name}".`, "success");
+          await Promise.all([refreshStatus(), refreshCatalog()]);
+        }, el.settingsAlert);
       }
 
       function pasteSpec() {
         return run(async () => {
           const content = el.content.value;
           if (!content.trim()) {
-            showAlert("Content cannot be empty.", "warn");
+            notify(el.settingsAlert, "Content cannot be empty.", "warn");
             return;
           }
           await request("/api/spec/paste", {
@@ -955,9 +2321,9 @@
             headers: authHeaders({ "Content-Type": "application/json" }),
             body: JSON.stringify({ content, isYaml: el.isYaml.checked }),
           });
-          showAlert("Specification applied.", "success");
-          await refreshAll();
-        });
+          notify(el.settingsAlert, "Specification applied.", "success");
+          await Promise.all([refreshStatus(), refreshCatalog()]);
+        }, el.settingsAlert);
       }
 
       function clearSpec() {
@@ -966,31 +2332,35 @@
             !window.confirm(
               "Clear the loaded specification and stop the service?",
             )
-          )
+          ) {
             return;
+          }
           await request("/api/spec/clear", {
             method: "POST",
             headers: authHeaders(),
           });
-          await refreshAll();
-        });
+          notify(el.settingsAlert, "Specification cleared.", "success");
+          await Promise.all([refreshStatus(), refreshCatalog()]);
+        }, el.settingsAlert);
       }
 
-      function saveBaseUrl() {
+      function saveBaseUrl(clear = false) {
         return run(async () => {
-          const baseUrl = el.baseUrl.value.trim();
+          const baseUrl = clear ? "" : el.baseUrl.value.trim();
           await request("/api/config/base-url", {
             method: "POST",
             headers: authHeaders({ "Content-Type": "application/json" }),
             body: JSON.stringify({ baseUrl }),
           });
+          if (clear) el.baseUrl.value = "";
           delete el.baseUrl.dataset.dirty;
-          showAlert(
+          notify(
+            el.settingsAlert,
             baseUrl ? "Base URL override saved." : "Base URL override removed.",
             "success",
           );
-          await refreshAll();
-        });
+          await refreshStatus();
+        }, el.settingsAlert);
       }
 
       function startService(id) {
@@ -999,8 +2369,9 @@
             method: "POST",
             headers: authHeaders(),
           });
-          await refreshAll();
-        });
+          notify(el.quickAlert, "Service started.", "success");
+          await refreshStatus();
+        }, el.quickAlert);
       }
 
       function stopService(id) {
@@ -1009,8 +2380,9 @@
             method: "POST",
             headers: authHeaders(),
           });
-          await refreshAll();
-        });
+          notify(el.quickAlert, "Service stopped.", "success");
+          await refreshStatus();
+        }, el.quickAlert);
       }
 
       let debugController = null;
@@ -1019,34 +2391,53 @@
         return run(async () => {
           const toolName = el.toolSelect.value;
           if (!toolName) {
-            showAlert("No tool is selected.", "warn");
+            notify(el.callAlert, "No tool is selected.", "warn");
             return;
           }
 
-          const rawArgs = el.toolArgs.value.trim();
-          let args = {};
-          if (rawArgs) {
-            try {
-              args = JSON.parse(rawArgs);
-            } catch (error) {
-              showAlert(
-                `Tool arguments must be valid JSON: ${error.message}`,
-                "warn",
-              );
-              return;
+          let args;
+          try {
+            if (state.argTab === "form") {
+              args = collectArgsFromForm();
+            } else {
+              const parsed = parseArguments(el.toolArgs.value);
+              args = parsed.value;
+              if (parsed.repaired) {
+                el.toolArgs.value = JSON.stringify(args, null, 2);
+                notify(
+                  el.callAlert,
+                  "The arguments were not valid JSON, so quotes and trailing commas were normalised. The corrected payload is shown above — confirm it before relying on the result.",
+                  "warn",
+                  { sticky: true },
+                );
+              }
             }
+          } catch (error) {
+            notify(el.callAlert, error.message, "warn");
+            return;
           }
+
           if (
             args === null ||
             typeof args !== "object" ||
             Array.isArray(args)
           ) {
-            showAlert("Tool arguments must be a JSON object.", "warn");
+            notify(
+              el.callAlert,
+              "Tool arguments must be a JSON object.",
+              "warn",
+            );
             return;
           }
 
           debugController = new AbortController();
           el.btnCancelCall.disabled = false;
+          el.callSpinner.classList.remove("hidden");
+          el.callResultMeta.innerHTML = "";
+          el.debugResult.classList.add("muted");
+          el.debugResult.textContent = "Waiting for the upstream response…";
+
+          const startedAt = performance.now();
           try {
             const result = await request("/api/debug/call-tool", {
               method: "POST",
@@ -1054,18 +2445,47 @@
               body: JSON.stringify({ toolName, arguments: args }),
               signal: debugController.signal,
             });
+            const elapsed = Math.round(performance.now() - startedAt);
+            el.debugResult.classList.remove("muted");
             el.debugResult.textContent = pretty(result);
+            // isError is the MCP-level failure flag: a transport 200 can still
+            // carry a failed tool result, so it must be surfaced separately.
+            const failed = result?.isError === true;
+            el.callResultMeta.innerHTML = `
+              <span class="pill ${failed ? "danger" : "success"}">${failed ? "Tool Error" : "Success"}</span>
+              <span class="pill plain mono">${elapsed}ms</span>
+              <span class="pill plain mono">${escapeHtml(toolName)}</span>`;
+            if (!failed) clearNotice(el.callAlert);
+          } catch (error) {
+            if (!isAbortError(error)) {
+              el.debugResult.classList.remove("muted");
+              el.debugResult.textContent = pretty(
+                error.body || { error: error.message },
+              );
+              el.callResultMeta.innerHTML = `<span class="pill danger">Failed${error.status ? ` · HTTP ${escapeHtml(error.status)}` : ""}</span>`;
+            }
+            throw error;
           } finally {
             el.btnCancelCall.disabled = true;
+            el.callSpinner.classList.add("hidden");
             debugController = null;
+            // The call is logged either way, so keep the log view honest.
+            refreshLogs().catch(reportBackground);
           }
-          await refreshLogs();
-        });
+        }, el.callAlert);
       }
 
       function cancelDebugCall() {
-        debugController?.abort();
+        if (!debugController) return;
+        debugController.abort();
+        el.debugResult.classList.add("muted");
         el.debugResult.textContent = "Cancelled by the operator.";
+        el.callResultMeta.innerHTML = `<span class="pill warn">Cancelled</span>`;
+        notify(
+          el.callAlert,
+          "The request was aborted locally. Whether the upstream call was also cancelled depends on the server honouring the abort signal.",
+          "info",
+        );
       }
 
       function clearLogs() {
@@ -1075,115 +2495,228 @@
             headers: authHeaders(),
           });
           await refreshLogs();
-        });
+        }, el.logsAlert);
       }
 
-      /* ------------------------------------------------------------------ */
-      /* Auto refresh                                                       */
-      /* ------------------------------------------------------------------ */
-
-      function stopAutoRefresh() {
-        if (autoRefreshTimer) clearInterval(autoRefreshTimer);
-        autoRefreshTimer = null;
-        el.autoRefresh.checked = false;
+      function formatRawJson() {
+        try {
+          const parsed = parseArguments(el.toolArgs.value);
+          el.toolArgs.value = JSON.stringify(parsed.value, null, 2);
+          notify(
+            el.callAlert,
+            parsed.repaired
+              ? "Formatted, and invalid quoting was repaired. Check the result."
+              : "Formatted.",
+            parsed.repaired ? "warn" : "success",
+          );
+        } catch (error) {
+          notify(el.callAlert, error.message, "warn");
+        }
       }
 
-      function setupAutoRefresh() {
-        if (autoRefreshTimer) clearInterval(autoRefreshTimer);
-        autoRefreshTimer = null;
-        if (!el.autoRefresh.checked) return;
-
-        autoRefreshTimer = setInterval(() => {
-          refreshAll().catch((error) => {
-            if (isAbortError(error)) return;
-            // A rejected credential would otherwise fail silently every 3s, and the
-            // console would simply appear frozen with no explanation.
-            if (error instanceof UnauthorizedError) {
-              stopAutoRefresh();
-              showAlert(`${error.message} Auto refresh was stopped.`);
-              return;
-            }
-            console.warn(error);
-          });
-        }, 3000);
-      }
-
-      /* ------------------------------------------------------------------ */
-      /* Wiring                                                             */
-      /* ------------------------------------------------------------------ */
-
-      document
-        .getElementById("btnUpload")
-        .addEventListener("click", uploadFile);
-      document.getElementById("btnPaste").addEventListener("click", pasteSpec);
-      document.getElementById("btnClear").addEventListener("click", clearSpec);
-      document
-        .getElementById("btnSaveBaseUrl")
-        .addEventListener("click", saveBaseUrl);
-      document
-        .getElementById("btnRefreshLogs")
-        .addEventListener("click", () => run(() => refreshLogs()));
-      document
-        .getElementById("btnClearLogs")
-        .addEventListener("click", clearLogs);
-      document
-        .getElementById("btnDebugCall")
-        .addEventListener("click", debugCallTool);
-      el.btnCancelCall.addEventListener("click", cancelDebugCall);
-      el.autoRefresh.addEventListener("change", setupAutoRefresh);
-
-      el.baseUrl.addEventListener("input", () => {
-        el.baseUrl.dataset.dirty = "1";
-      });
-
-      el.apiKey.addEventListener("change", () => {
+      function applyApiKey() {
         const value = el.apiKey.value.trim();
-        // sessionStorage rather than localStorage: the credential dies with the tab
-        // instead of persisting to disk.
+        // sessionStorage rather than localStorage: the credential dies with the
+        // tab instead of persisting to disk.
         try {
           if (value) sessionStorage.setItem(API_KEY_STORAGE, value);
           else sessionStorage.removeItem(API_KEY_STORAGE);
         } catch {
-          // Storage may be unavailable in private modes; the field still works.
+          // Private-browsing modes can block storage; the field still works.
         }
-        run(async () => {
-          await refreshAll();
-          setupAutoRefresh();
-        });
+        clearGlobal();
+        return run(async () => {
+          await Promise.all([refreshStatus(), refreshCatalog(), refreshLogs()]);
+          notify(el.settingsAlert, "Credential accepted.", "success");
+          syncPollers();
+        }, el.settingsAlert);
+      }
+
+      function forgetApiKey() {
+        el.apiKey.value = "";
+        try {
+          sessionStorage.removeItem(API_KEY_STORAGE);
+        } catch {
+          /* nothing to clean up */
+        }
+        notify(el.settingsAlert, "Stored key removed from this tab.", "info");
+      }
+
+      /* ==================================================================
+       * Wiring
+       * ================================================================== */
+
+      el.nav.addEventListener("click", (event) => {
+        const button = event.target.closest("button[data-view]");
+        if (button) setView(button.dataset.view);
       });
 
-      // Event delegation instead of inline onclick handlers: the service id is
-      // interpolated into markup, and relying on encodeURIComponent to neutralise
-      // quotes is an accident rather than a defence.
+      window.addEventListener("hashchange", () => {
+        const view = window.location.hash.replace("#", "") || DEFAULT_VIEW;
+        if (view !== state.view) setView(view, { pushHash: false });
+      });
+
+      // Dashboard
+      $("btnDashRefresh").addEventListener("click", () =>
+        run(() => refreshStatus(), el.quickAlert),
+      );
+      el.btnQuickStart.addEventListener("click", () => {
+        if (state.selectedServiceId) void startService(state.selectedServiceId);
+      });
+      el.btnQuickStop.addEventListener("click", () => {
+        if (!state.selectedServiceId) return;
+        if (!window.confirm("Stop the service and drop every live session?"))
+          return;
+        void stopService(state.selectedServiceId);
+      });
+
+      // Event delegation rather than inline onclick: the service id is
+      // interpolated into markup, and leaning on encodeURIComponent to neutralise
+      // quotes would be an accident, not a defence.
       el.serviceList.addEventListener("click", (event) => {
         const button = event.target.closest("button[data-action]");
-        if (!button || button.disabled) return;
-        const { action, id } = button.dataset;
-        if (!id) return;
-        if (action === "start") void startService(id);
-        if (action === "stop") void stopService(id);
+        if (button && !button.disabled) {
+          const { action, id } = button.dataset;
+          if (!id) return;
+          if (action === "start") void startService(id);
+          if (action === "stop") void stopService(id);
+          return;
+        }
+        const card = event.target.closest("[data-service-id]");
+        if (card) {
+          state.selectedServiceId = card.dataset.serviceId;
+          renderServiceList();
+          renderQuickControl();
+        }
+      });
+
+      // Call Tool
+      $("btnReloadTools").addEventListener("click", () =>
+        run(() => refreshCatalog(), el.callAlert),
+      );
+      el.toolSelect.addEventListener("change", () => {
+        clearNotice(el.callAlert);
+        el.toolArgs.value = "";
+        renderToolMeta();
+        renderArgForm();
+      });
+      $("argTabs").addEventListener("click", (event) => {
+        const button = event.target.closest("button[data-argtab]");
+        if (button) setArgTab(button.dataset.argtab);
+      });
+      $("btnFormatJson").addEventListener("click", formatRawJson);
+      $("btnFromForm").addEventListener("click", () => {
+        try {
+          el.toolArgs.value = JSON.stringify(collectArgsFromForm(), null, 2);
+          notify(el.callAlert, "Filled from the form.", "success");
+        } catch (error) {
+          notify(el.callAlert, error.message, "warn");
+        }
+      });
+      $("btnDebugCall").addEventListener("click", debugCallTool);
+      el.btnCancelCall.addEventListener("click", cancelDebugCall);
+
+      // Submitting with the keyboard is the reflex for a form like this.
+      el.toolArgs.addEventListener("keydown", (event) => {
+        if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+          event.preventDefault();
+          void debugCallTool();
+        }
+      });
+
+      // Logs
+      el.autoRefresh.addEventListener("change", syncPollers);
+      el.autoRefreshInterval.addEventListener("change", () => {
+        if (el.autoRefresh.checked && state.view === "logs") startLogPolling();
+      });
+      $("btnRefreshLogs").addEventListener("click", () =>
+        run(() => refreshLogs(), el.logsAlert),
+      );
+      $("btnClearLogs").addEventListener("click", clearLogs);
+      el.logFilter.addEventListener("input", renderLogs);
+      el.logErrorsOnly.addEventListener("change", renderLogs);
+
+      // Catalog
+      $("catalogTabs").addEventListener("click", (event) => {
+        const button = event.target.closest("button[data-cat]");
+        if (button) setCatalogTab(button.dataset.cat);
+      });
+      $("btnReloadCatalog").addEventListener("click", () =>
+        run(() => refreshCatalog(), el.catalogAlert),
+      );
+      el.catalogFilter.addEventListener("input", renderCatalog);
+      el.catalogRaw.addEventListener("change", renderCatalog);
+      el.toolCatalog.addEventListener("click", (event) => {
+        const button = event.target.closest("button[data-call-tool]");
+        if (!button) return;
+        setView("call");
+        el.toolSelect.value = button.dataset.callTool;
+        el.toolArgs.value = "";
+        renderToolMeta();
+        renderArgForm();
+      });
+
+      // Settings
+      $("btnUpload").addEventListener("click", uploadFile);
+      $("btnPaste").addEventListener("click", pasteSpec);
+      $("btnClearSpec").addEventListener("click", clearSpec);
+      $("btnSaveBaseUrl").addEventListener("click", () => saveBaseUrl(false));
+      $("btnResetBaseUrl").addEventListener("click", () => saveBaseUrl(true));
+      $("btnApplyKey").addEventListener("click", applyApiKey);
+      $("btnForgetKey").addEventListener("click", forgetApiKey);
+      el.baseUrl.addEventListener("input", () => {
+        el.baseUrl.dataset.dirty = "1";
+      });
+
+      // Pause polling in a hidden tab and resume on return, so the console does
+      // not keep hitting the admin API while nobody is watching.
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) {
+          syncPollers();
+          onViewEntered(state.view);
+        }
       });
 
       window.addEventListener("beforeunload", () => {
-        refreshController?.abort();
+        statusController?.abort();
+        catalogController?.abort();
+        logsController?.abort();
         debugController?.abort();
       });
+
+      /* ==================================================================
+       * Boot
+       * ================================================================== */
 
       window.addEventListener("load", async () => {
         try {
           const stored = sessionStorage.getItem(API_KEY_STORAGE);
           if (stored) el.apiKey.value = stored;
         } catch {
-          // Ignore: an unreadable store just means the field starts empty.
+          // An unreadable store just means the field starts empty.
         }
 
+        setView(window.location.hash.replace("#", "") || DEFAULT_VIEW, {
+          pushHash: false,
+        });
+
         try {
-          await refreshAll();
-          setupAutoRefresh();
+          await Promise.all([refreshStatus(), refreshCatalog(), refreshLogs()]);
         } catch (error) {
           if (isAbortError(error)) return;
-          showAlert(`Initial load failed: ${error.message}`);
-          if (error instanceof UnauthorizedError) stopAutoRefresh();
+          if (error instanceof UnauthorizedError) {
+            showGlobal(`${error.message} Open Settings to enter a key.`);
+            setView("settings");
+          } else {
+            showGlobal(`Initial load failed: ${error.message}`);
+          }
+          return;
+        }
+
+        // A freshly started server with nothing loaded is most usefully opened on
+        // Settings rather than an empty dashboard.
+        if (!state.status.specLoaded && !window.location.hash) {
+          setView("settings");
         }
       });
     </script>
