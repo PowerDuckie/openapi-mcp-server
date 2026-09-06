@@ -14,13 +14,7 @@ A production-oriented TypeScript library and runtime that converts OpenAPI docum
 ## Install
 
 ```bash
-npm install
-```
-
-## Build
-
-```bash
-npm run build
+npm i @powerduck/openapi-mcp-server
 ```
 
 ## Start web runtime
@@ -33,24 +27,6 @@ npm run start -- serve --port 3000 --host 127.0.0.1
 
 ```bash
 node dist/cli.js serve --transport stdio --spec ./openapi.yaml
-```
-
-## Demo
-
-```bash
-npm run demo
-```
-
-## Library usage
-
-```ts
-import {
-  parseSpecContent,
-  generateTools,
-  generatePrompts,
-  generateResources,
-  buildMcpServer,
-} from "openapi-mcp-production";
 ```
 
 ## CLI usage

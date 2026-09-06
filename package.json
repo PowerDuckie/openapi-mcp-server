@@ -1,6 +1,6 @@
 {
   "name": "@powerduck/openapi-mcp-server",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Production-oriented OpenAPI to MCP server library with Tools, Prompts, Resources, Web UI, and admin runtime.",
   "type": "module",
   "main": "./dist/index.cjs",
