@@ -32,7 +32,7 @@ export default defineConfig((options) => ({
     return { js: format === "esm" ? ".mjs" : ".cjs" };
   },
 
-  sourcemap: true,
+  sourcemap: false,
   clean: true,
   splitting: false,
   treeshake: true,
@@ -69,6 +69,6 @@ export default defineConfig((options) => ({
     return { js: "#!/usr/bin/env node" };
   },
 
-  minify: false,
+  minify: "terser",
   watch: options.watch,
 }));
